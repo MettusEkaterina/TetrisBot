@@ -21,15 +21,15 @@
  */
 namespace TetrisClient
 {
-	public enum Tetromino : short
+	public enum Element : short
 	{
-		I =   (short)'I',
-		J =   (short)'J',
+		I = (short)'I',
+		J = (short)'J',
 		L = (short)'L',
 		O = (short)'O',
-		S =  (short)'S',
+		S = (short)'S',
 		T = (short)'T',
-		Z =    (short)'Z',
-		NONE =   (short)'.',
+		Z = (short)'Z',
+		NONE = (short)'.',
 	}
 }

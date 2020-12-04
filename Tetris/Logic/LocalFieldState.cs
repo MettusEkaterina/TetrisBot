@@ -8,6 +8,8 @@ namespace TetrisClient.Logic
 		public int FigureAngle; //угол, на который повернута падающая заданная фигура (количество поворотов по часовой стрелке)
         public int[] ColumnsHeight;
         public List<Point> Holes;
-        public float Weight; // приоритет состояния игрового поля
+        public double Weight; // приоритет состояния игрового поля
+        public int FieldHeight; // высота игрового поля
+        public int FieldWidth; // ширина игрового поля
     }
 }

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using TetrisClient.Logic;
 
 namespace TetrisClient
 {
@@ -61,6 +62,10 @@ namespace TetrisClient
 			return field;
 		}
 
+        /// <summary>
+        /// Получить характеристики поля: высоты поверхности содержимого стакана и список дырок
+        /// </summary>
+        /// <returns></returns>
         public (int[] columnsHeight, List<Point> holes) GetFieldCharacteristics()
         {
             var field = GetField();
@@ -95,7 +100,7 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public List<Point> Get(params Tetromino[] elements)
+		public List<Point> Get(params Element[] elements)
 		{
 			List<Point> result = new List<Point>();
 
@@ -117,11 +122,11 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="point"></param>
 		/// <returns></returns>
-		public Tetromino GetAt(Point point)
+		public Element GetAt(Point point)
 		{
 			if (point.IsOutOf(Size))
 			{
-				return Tetromino.NONE;
+				return Element.NONE;
 			}
 			return GetAtInternal(point.X, point.Y);
 		}
@@ -132,7 +137,7 @@ namespace TetrisClient
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <returns></returns>
-		public Tetromino GetAt(int x, int y)
+		public Element GetAt(int x, int y)
 		{
 			if (IsOutOfField(x, y))
 				throw new Exception("Out of range");
@@ -145,7 +150,7 @@ namespace TetrisClient
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <returns></returns>
-		public List<Tetromino> GetAllAt(int x, int y)
+		public List<Element> GetAllAt(int x, int y)
 		{
 			if (IsOutOfField(x, y))
 				throw new Exception("Out of range");
@@ -157,7 +162,7 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="pt"></param>
 		/// <returns></returns>
-		public List<Tetromino> GetAllAt(Point pt)
+		public List<Element> GetAllAt(Point pt)
 		{
 			return GetAllAt(pt.X, pt.Y);
 		}
@@ -169,7 +174,7 @@ namespace TetrisClient
 		/// <param name="y"></param>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public bool IsAt(int x, int y, params Tetromino[] elements)
+		public bool IsAt(int x, int y, params Element[] elements)
 		{
 			if (IsOutOfField(x, y))
 			{
@@ -184,7 +189,7 @@ namespace TetrisClient
 		/// <param name="point"></param>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public bool IsAt(Point point, params Tetromino[] elements)
+		public bool IsAt(Point point, params Element[] elements)
 		{
 			if (point.IsOutOf(Size))
 			{
@@ -198,22 +203,22 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
-		/// <param name="tetromino"></param>
+		/// <param name="element"></param>
 		/// <returns></returns>
-		public bool IsNear(int x, int y, Tetromino tetromino)
+		public bool IsNear(int x, int y, Element element)
 		{
-			return CountNear(x, y, tetromino) > 0;
+			return CountNear(x, y, element) > 0;
 		}
 
 		/// <summary>
 		/// Проверить, находится ли элемент по соседству с указанной координатой. Проверяются также угловые соседи.
 		/// </summary>
 		/// <param name="pt"></param>
-		/// <param name="tetromino"></param>
+		/// <param name="element"></param>
 		/// <returns></returns>
-		public bool IsNear(Point pt, Tetromino tetromino)
+		public bool IsNear(Point pt, Element element)
 		{
-			return IsNear(pt.X, pt.Y, tetromino);
+			return IsNear(pt.X, pt.Y, element);
 		}
 
 		/// <summary>
@@ -221,9 +226,9 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
-		/// <param name="tetromino"></param>
+		/// <param name="element"></param>
 		/// <returns></returns>
-		public int CountNear(int x, int y, Tetromino tetromino)
+		public int CountNear(int x, int y, Element element)
 		{
 			int count = 0;
 			for (int i = x - 1; i < x + 2; i++)
@@ -232,7 +237,7 @@ namespace TetrisClient
 				{
 					if (i == x && j == y)
 						continue;
-					if (IsAt(i, j, tetromino))
+					if (IsAt(i, j, element))
 						count++;
 				}
 			}
@@ -243,11 +248,11 @@ namespace TetrisClient
 		/// Подсчитать количество соседних клеток, являющихся заданным элементом.
 		/// </summary>
 		/// <param name="pt"></param>
-		/// <param name="tetromino"></param>
+		/// <param name="element"></param>
 		/// <returns></returns>
-		public int CountNear(Point pt, Tetromino tetromino)
+		public int CountNear(Point pt, Element element)
 		{
-			return CountNear(pt.X, pt.Y, tetromino);
+			return CountNear(pt.X, pt.Y, element);
 		}
 
 		/// <summary>
@@ -255,21 +260,20 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="ch"></param>
 		/// <returns></returns>
-		public Tetromino ValueOf(char ch)
+		public Element ValueOf(char ch)
 		{
-			return (Tetromino)ch;
+			return (Element)ch;
 		}
 
-
-		/// <summary>
+        /// <summary>
 		/// Получить все элементы на соседних клетках
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <returns></returns>
-		public List<Tetromino> GetNear(int x, int y)
+		public List<Element> GetNear(int x, int y)
 		{
-			List<Tetromino> elements = new List<Tetromino>(8);
+			List<Element> elements = new List<Element>(8);
 			for (int i = x - 1; i < x + 2; i++)
 			{
 				for (int j = y - 1; j < y + 2; j++)
@@ -288,7 +292,7 @@ namespace TetrisClient
 		/// </summary>
 		/// <param name="point"></param>
 		/// <returns></returns>
-		public List<Tetromino> GetNear(Point point)
+		public List<Element> GetNear(Point point)
 		{
 			return GetNear(point.X, point.Y);
 		}
@@ -311,13 +315,13 @@ namespace TetrisClient
 		public List<Point> GetFigures()
 		{
 			return Get(
-				Tetromino.I,
-				Tetromino.J,
-				Tetromino.L,
-				Tetromino.O,
-				Tetromino.S,
-				Tetromino.T,
-				Tetromino.Z
+				Element.I,
+				Element.J,
+				Element.L,
+				Element.O,
+				Element.S,
+				Element.T,
+				Element.Z
 			);
 		}
 
@@ -327,7 +331,7 @@ namespace TetrisClient
 		/// <returns></returns>
 		public List<Point> GetFreeSpace()
 		{
-			return Get(Tetromino.NONE);
+			return Get(Element.NONE);
 		}
 
 		/// <summary>
@@ -338,14 +342,14 @@ namespace TetrisClient
 		/// <returns></returns>
 		public bool IsFree(int x, int y)
 		{
-			return GetAtInternal(x, y) == Tetromino.NONE;
+			return GetAtInternal(x, y) == Element.NONE;
 		}
 
 		/// <summary>
 		/// Получить тип текущей фигуры
 		/// </summary>
 		/// <returns></returns>
-		public Tetromino GetCurrentFigureType()
+		public Element GetCurrentFigureType()
 		{
 			return ValueOf(RawBoard.CurrentFigureType);
 		}
@@ -365,7 +369,7 @@ namespace TetrisClient
 		/// <returns></returns>
 		public List<Tetromino> GetFutureFigures()
 		{
-			return RawBoard.FutureFigures.Select(x => ValueOf(x)).ToList();
+			return RawBoard.FutureFigures.Select(x => ValueOf(x).ToTetromino()).ToList();
 		}
 
 		/// <summary>
@@ -391,14 +395,14 @@ namespace TetrisClient
 			return Size - 1 - y;
 		}
 
-		private Tetromino GetAtInternal(int x, int y)
+		private Element GetAtInternal(int x, int y)
 		{
-			return (Tetromino)RawBoard.Layers[0][LengthXY.GetLength(x, y)];
+			return (Element)RawBoard.Layers[0][LengthXY.GetLength(x, y)];
 		}
 
-		private List<Tetromino> GetAllAtInternal(int x, int y)
+		private List<Element> GetAllAtInternal(int x, int y)
 		{
-			return RawBoard.Layers.Select(layer => (Tetromino)layer[LengthXY.GetLength(x, y)])
+			return RawBoard.Layers.Select(layer => (Element)layer[LengthXY.GetLength(x, y)])
 				.ToList();
 		}
 

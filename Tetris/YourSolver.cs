@@ -33,7 +33,7 @@ namespace TetrisClient
 
 		protected internal override Command Get(Board board)
         {
-            var tetromino = board.GetCurrentFigureType();
+            var tetromino = board.GetCurrentFigureType().ToTetromino();
             var figurePoint = board.GetCurrentFigurePoint();
             var futureFigures = board.GetFutureFigures();
 			futureFigures.Insert(0, tetromino);
@@ -45,7 +45,9 @@ namespace TetrisClient
 				FigureAngle = 0,
                 ColumnsHeight = columnsHeight,
 				Holes = holes,
-				Weight = 0
+				Weight = 0,
+                FieldHeight = board.Size,
+                FieldWidth = board.Size
 			};
 
             return currentFieldState.GetCommand(futureFigures.ToArray());
