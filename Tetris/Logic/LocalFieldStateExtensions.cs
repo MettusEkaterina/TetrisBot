@@ -6,6 +6,19 @@ namespace TetrisClient.Logic
 {
 	public static class LocalFieldStateExtensions
 	{
+        private static bool[,] FiguresCombinations =
+        { 
+            //        OO     OU      OD     UO     DO     DU     UU     DD     U      D      O     All
+            /*O*/   {false, false, false, false, false, false, false, false, false, false, true,  false},
+            /*I*/   {false, false, false, false, false, false, false, false, false, false, false, false}, // проверить
+            /*S*/   {false, true,  false, false, false, false, false, false, false, true,  false, false},
+            /*Z*/   {false, false, false, false, true,  false, false, false, true,  false, false, false},
+            /*J*/   {true,  false, true,  false, false, false, true,  false, false, false, true,  false},
+            /*L*/   {true,  false, false, true,  false, false, false, true,  false, false, true,  false},
+            /*T*/   {true,  false, false, false, false, true,  false, false, true,  true,  false, false},
+            /*All*/ {false, false, false, false, false, false, false, false, false, false, false, false}
+        };
+
         public static Command GetCommand(this LocalFieldState currentState, Tetromino[] nextFigures)
         {
             var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0);
@@ -41,36 +54,74 @@ namespace TetrisClient.Logic
             return commands.Aggregate((x, y) => x.Then(y));
         }
 
-        //TODO: hardcode
-        private static bool[,] FiguresCombinations =
+		private static Combination GetOneCellCombination(int relativeHeight)
         {
-            {true, false},
-            {false, true}
-        };
-
-        //FiguresCombinations[(int)Tetromino.O, (int)Combination.O] = true;
-        //FiguresCombinations[(int)Tetromino.T, (int)Combination.DU] = true;
-        //FiguresCombinations[(int)Tetromino.T, (int)Combination.U] = true;
-        //FiguresCombinations[(int)Tetromino.T, (int)Combination.D] = true;
-        //FiguresCombinations[(int)Tetromino.T, (int)Combination.OO] = true;
-
-        //TODO: hardcode
-        private static Combination GetOneCellCombination(int relativeHeight)
-		{
-			throw new NotImplementedException();
+            switch (relativeHeight)
+            {
+				case 2:
+                    return Combination.UU;
+				case -2:
+                    return Combination.DD;
+				case 1:
+                    return Combination.U;
+				case -1:
+                    return Combination.D;
+				case 0:
+                    return Combination.O;
+				default:
+                    return Combination.All;
+			}
 		}
 
-        //TODO: hardcode
         private static Combination GetTwoCellCombination(int relativeHeight1, int relativeHeight2)
 		{
-			throw new NotImplementedException();
+            switch (relativeHeight1)
+            {
+                case 0:
+                {
+                    switch (relativeHeight2)
+                    {
+						case 0:
+                            return Combination.OO;
+						case 1:
+                            return Combination.OU;
+						case -1:
+                            return Combination.OD;
+						default:
+                            return Combination.All;
+                    }
+                }
+                case 1:
+                {
+					switch (relativeHeight2)
+                    {
+                        case 0:
+                            return Combination.UO;
+                        default:
+                            return Combination.All;
+                    }
+				}
+                case -1:
+                {
+					switch (relativeHeight2)
+                    {
+                        case 0:
+                            return Combination.DO;
+                        case 1:
+                            return Combination.DU;
+						default:
+                            return Combination.All;
+                    }
+				}
+                default:
+                    return Combination.All;
+            }
 		}
 
         private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, Tetromino[] nextFigures, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
         {
             var fieldStateOptions = currentState.GetFieldStateOptions(nextFigures[level]);
 
-            //TODO: Refactor
             if (level != nextFigures.Length - 1)
             {
                 foreach (var option in fieldStateOptions) // параллелить
