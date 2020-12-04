@@ -23,7 +23,7 @@ namespace TetrisClient.Logic
         {
             var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0);
             var rotationsNumber = resultFieldState.FigureAngle;
-            var stepsNumber = resultFieldState.FigureCoordinate - currentState.FigureCoordinate;
+            var stepsNumber = resultFieldState.FigureCoordinate - currentState.FigureCoordinate + nextFigures.First().GetAdditionalStepsAfterRotations(resultFieldState.FigureAngle);
             var commands = new List<Command>();
 
             for (var i = 0; i < rotationsNumber; i++)
@@ -121,6 +121,15 @@ namespace TetrisClient.Logic
         private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, List<Tetromino> nextFigures, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
         {
             var fieldStateOptions = currentState.GetFieldStateOptions(nextFigures[level]);
+            var result = new LocalFieldState();
+
+			if (fieldStateOptions.Count == 1)
+            {
+                result = fieldStateOptions.First();
+				result.UpdateWeight();
+
+                return result;
+			}
 
             if (level != nextFigures.Count - 1)
             {
@@ -136,8 +145,6 @@ namespace TetrisClient.Logic
                     option.UpdateWeight();
                 }
             }
-
-            var result = new LocalFieldState();
 
             foreach (var option in fieldStateOptions.Where(option => option.Weight > result.Weight))
             {

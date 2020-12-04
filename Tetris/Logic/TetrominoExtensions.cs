@@ -307,5 +307,60 @@
                     return 4;
             }
         }
+
+        public static int GetAdditionalStepsAfterRotations(this Tetromino figure, int angle)
+        {
+            switch (figure)
+            {
+                case Tetromino.I:
+                {
+                    if (angle == 1)
+                        return -3;
+                    else
+                        return 0;
+                }
+                case Tetromino.J:
+                {
+                    if (angle == 2)
+                        return 1;
+                    else 
+                        return 0;
+                }
+                case Tetromino.L:
+                {
+                    if (angle == 1 || angle == 2 || angle == 3)
+                        return -1;
+                    else
+                        return 0;
+                }
+                case Tetromino.O:
+                {
+                    return 0;
+                }
+                case Tetromino.S:
+                {
+                    if (angle == 1)
+                        return 1;
+                    else
+                        return 0;
+                }
+                case Tetromino.Z:
+                {
+                    if (angle == 1)
+                        return 1;
+                    else
+                        return 0;
+                }
+                case Tetromino.T:
+                {
+                    if (angle == 1)
+                        return 1;
+                    else
+                        return 0;
+                }
+                default:
+                    return 0;
+            }
+        }
     }
 }
