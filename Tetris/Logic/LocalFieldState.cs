@@ -4,10 +4,10 @@ namespace TetrisClient.Logic
 {
     public class LocalFieldState
     {
-        public int FigureXCoordinate; //расстояние от фигуры до левого края 
-		public int FigureAngle; //угол, на который повернута падающая заданная фигура
-		public List<Point> Holes;
-		public int[] ColumnsHeight;
-		public float Weight; // приоритет состояния игрового поля
+        public int FigureCoordinate; //расстояние от фигуры до левого края 
+		public int FigureAngle; //угол, на который повернута падающая заданная фигура (количество поворотов по часовой стрелке)
+        public int[] ColumnsHeight;
+        public List<Point> Holes;
+        public float Weight; // приоритет состояния игрового поля
     }
 }

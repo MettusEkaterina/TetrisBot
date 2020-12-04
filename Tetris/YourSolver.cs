@@ -24,9 +24,6 @@ using TetrisClient.Logic;
 
 namespace TetrisClient
 {
-	/// <summary>
-	/// В этом классе находится логика Вашего бота
-	/// </summary>
 	internal class YourSolver : AbstractSolver
 	{
 		public YourSolver(string server)
@@ -34,23 +31,24 @@ namespace TetrisClient
 		{
 		}
 
-		/// <summary>
-		/// Этот метод вызывается каждый игровой тик
-		/// </summary>
 		protected internal override Command Get(Board board)
         {
-            var tetromino = board.GetCurrentTetromino();
+            var tetromino = board.GetCurrentFigureType();
             var figurePoint = board.GetCurrentFigurePoint();
+            var futureFigures = board.GetFutureFigures();
+			futureFigures.Insert(0, tetromino);
+            var (columnsHeight, holes) = board.GetFieldCharacteristics();
 
+            var currentFieldState = new LocalFieldState
+            {
+				FigureCoordinate = figurePoint.X,
+				FigureAngle = 0,
+                ColumnsHeight = columnsHeight,
+				Holes = holes,
+				Weight = 0
+			};
 
-            // Код писать сюда!
-			return Command.DOWN;
-
-			// Команды можно комбинировать
-			/*
-			return Command.DOWN
-				.Then(Command.SUICIDE);
-			*/
+            return currentFieldState.GetCommand(futureFigures.ToArray());
 		}
 	}
 }

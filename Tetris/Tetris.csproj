@@ -61,7 +61,7 @@
     <Compile Include="Board.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Direction.cs" />
-    <Compile Include="Element.cs" />
+    <Compile Include="Tetromino.cs" />
     <Compile Include="FigureRotator.cs" />
     <Compile Include="JsonBoard.cs" />
     <Compile Include="LengthToXY.cs" />
@@ -70,7 +70,6 @@
     <Compile Include="Logic\LocalFieldStateExtensions.cs" />
     <Compile Include="Logic\Step.cs" />
     <Compile Include="Logic\TetrisBot.cs" />
-    <Compile Include="Logic\Tetromino.cs" />
     <Compile Include="Logic\TetrominoExtensions.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />

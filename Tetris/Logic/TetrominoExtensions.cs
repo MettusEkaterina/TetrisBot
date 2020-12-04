@@ -1,12 +1,10 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace TetrisClient.Logic
 {
 	public static class TetrominoExtensions
 	{
-		private const int AreaLength = 18;
-
 		public static void UpdateWeight(this LocalFieldState localFieldState)
 		{
 			localFieldState.Weight += localFieldState.GetMetric1();
@@ -14,7 +12,7 @@ namespace TetrisClient.Logic
 			localFieldState.Weight += localFieldState.GetMetric3();
         }
 
-	    public static LocalFieldState ProcessNextTetromino(Tetromino[] nextFigures, LocalFieldState currentState, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
+	    public static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, Tetromino[] nextFigures, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
 	    {
             var fieldStateOptions = nextFigures[level].GetFieldStateOptions(currentState);
 
@@ -23,7 +21,7 @@ namespace TetrisClient.Logic
 		    {
 			    foreach (var option in fieldStateOptions) // параллелить
 			    {
-                    option.Weight = ProcessNextTetromino(nextFigures, option, level + 1).Weight;
+                    option.Weight = option.ProcessNextTetromino(nextFigures, level + 1).Weight;
 			    }
 		    }
 		    else
@@ -44,47 +42,40 @@ namespace TetrisClient.Logic
 		    return result;
 	    }
 
-		public static Step GetResultStep(this Tetromino[] nextFigures, LocalFieldState currentState)
+		public static Command GetCommand(this LocalFieldState currentState, Tetromino[] nextFigures)
         {
-			var result = ProcessNextTetromino(nextFigures, currentState, 0);
+			var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0);
+            var rotationsNumber = resultFieldState.FigureAngle;
+            var stepsNumber = resultFieldState.FigureCoordinate - currentState.FigureCoordinate;
+            var commands = new List<Command>();
 
-            return result.GetResultStep();
-        }
-
-        public static Tetromino GetTetromino(this Element element)
-        {
-            switch (element)
+            for (var i = 0; i < rotationsNumber; i++)
             {
-                case Element.BLUE:
-                    return Tetromino.I;
-                case Element.CYAN:
-                    return Tetromino.J;
-                case Element.ORANGE:
-                    return Tetromino.L;
-                case Element.YELLOW:
-                    return Tetromino.O;
-                case Element.GREEN:
-                    return Tetromino.S;
-                case Element.PURPLE:
-                    return Tetromino.T;
-                case Element.RED:
-                    return Tetromino.Z;
-                case Element.NONE:
-                    return Tetromino.All;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(element), element, null);
+                commands.Add(Command.ROTATE_CLOCKWISE_90);
             }
+
+            if (stepsNumber > 0)
+            {
+                for (var i = 0; i < stepsNumber; i++)
+                {
+                    commands.Add(Command.RIGHT);
+                }
+            }
+
+            if (stepsNumber < 0)
+            {
+                stepsNumber = -stepsNumber;
+
+                for (var i = 0; i < stepsNumber; i++)
+                {
+                    commands.Add(Command.LEFT);
+                }
+            }
+
+            commands.Add(Command.DOWN);
+            
+            return commands.Aggregate((x, y) => x.Then(y));
         }
-
-        //public static int[] GetCoordinate(this Tetromino[] nextFigures, int angle)
-        //{
-        //    var result = figure.GetLocalCoordinate();
-
-        //    result[0] = result[0] - AreaLength; //примерно
-        //    result[1] = (result[1] + angle) % 4;
-
-        //    return result;
-        //}
 
         //TODO: Refactor and hardcode
         public static int GetRotationsNumber(this Tetromino figure, Combination combination)
@@ -102,48 +93,5 @@ namespace TetrisClient.Logic
                 _ => 5
             };
         }
-
-        //public static LocalFieldState CreateOption(this Tetromino figure, int angle) //hardcode
-        //{
-        //    var option = new LocalFieldState();
-
-        //    switch (figure)
-        //    {
-        //        case Tetromino.O:
-        //            if (angle == 0)
-        //            {
-        //                option.Length = 2;
-        //                option.Height = new[] { 2, 2 };
-        //                break;
-        //            }
-        //            else
-        //            {
-        //                return null;
-        //            }
-
-        //        case Tetromino.I:
-        //            if (angle == 0)
-        //            {
-        //                option.Length = 1;
-        //                option.Height = new[] { 4 };
-        //                break;
-        //            }
-        //            else if (angle == 1)
-        //            {
-        //                option.Length = 4;
-        //                option.Height = new[] { 1, 1, 1, 1 };
-        //                break;
-        //            }
-        //            else
-        //            {
-        //                return null;
-        //            }
-        //        //...
-        //        default:
-        //            return null;
-        //    }
-
-        //    return option;
-        //}
     }
 }

@@ -33,7 +33,7 @@ namespace TetrisClient
 			(point, delta) => point.ShiftLeft(delta),
 		};
 
-		public static Point[] PredictCurrentFigurePoints(Rotation rotation, Point anchor, Element figureType)
+		public static Point[] PredictCurrentFigurePoints(Rotation rotation, Point anchor, Tetromino figureType)
 		{
 			var shiftTopAfterRotation = GetShiftAfterRotation(Direction.Up, rotation);
 			var shiftRightAfterRotation = GetShiftAfterRotation(Direction.Right, rotation);
@@ -42,7 +42,7 @@ namespace TetrisClient
 
 			switch (figureType)
 			{
-				case Element.BLUE:
+				case Tetromino.I:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1),
@@ -50,7 +50,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1),
 						anchor.Shift(shiftBottomAfterRotation, 2),
 					};
-				case Element.CYAN:
+				case Tetromino.J:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1),
@@ -59,7 +59,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1)
 							  .Shift(shiftLeftAfterRotation, 1),
 					};
-				case Element.ORANGE:
+				case Tetromino.L:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1),
@@ -68,7 +68,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1)
 							  .Shift(shiftRightAfterRotation, 1),
 					};
-				case Element.YELLOW:
+				case Tetromino.O:
 					return new[]
 					{
 						anchor,
@@ -77,7 +77,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1)
 							  .Shift(shiftRightAfterRotation, 1),
 					};
-				case Element.GREEN:
+				case Tetromino.S:
 					return new[]
 					{
 						anchor.Shift(shiftLeftAfterRotation, 1),
@@ -86,7 +86,7 @@ namespace TetrisClient
 						anchor.Shift(shiftTopAfterRotation, 1)
 							  .Shift(shiftRightAfterRotation, 1),
 					};
-				case Element.PURPLE:
+				case Tetromino.T:
 					return new[]
 					{
 						anchor.Shift(shiftLeftAfterRotation, 1),
@@ -94,7 +94,7 @@ namespace TetrisClient
 						anchor.Shift(shiftRightAfterRotation, 1),
 						anchor.Shift(shiftTopAfterRotation, 1),
 					};
-				case Element.RED:
+				case Tetromino.Z:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1)
