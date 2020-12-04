@@ -10,7 +10,7 @@ namespace TetrisClient.Logic
         { 
             //        OO     OU      OD     UO     DO     DU     UU     DD     U      D      O     All
             /*O*/   {false, false, false, false, false, false, false, false, false, false, true,  false},
-            /*I*/   {false, false, false, false, false, false, false, false, false, false, false, false}, // проверить
+            /*I*/   {false, false, false, false, false, false, false, false, false, false, false, false},
             /*S*/   {false, true,  false, false, false, false, false, false, false, true,  false, false},
             /*Z*/   {false, false, false, false, true,  false, false, false, true,  false, false, false},
             /*J*/   {true,  false, true,  false, false, false, true,  false, false, false, true,  false},
@@ -19,7 +19,7 @@ namespace TetrisClient.Logic
             /*All*/ {false, false, false, false, false, false, false, false, false, false, false, false}
         };
 
-        public static Command GetCommand(this LocalFieldState currentState, Tetromino[] nextFigures)
+        public static Command GetCommand(this LocalFieldState currentState, List<Tetromino> nextFigures)
         {
             var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0);
             var rotationsNumber = resultFieldState.FigureAngle;
@@ -118,11 +118,11 @@ namespace TetrisClient.Logic
             }
 		}
 
-        private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, Tetromino[] nextFigures, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
+        private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, List<Tetromino> nextFigures, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
         {
             var fieldStateOptions = currentState.GetFieldStateOptions(nextFigures[level]);
 
-            if (level != nextFigures.Length - 1)
+            if (level != nextFigures.Count - 1)
             {
                 foreach (var option in fieldStateOptions) // параллелить
                 {

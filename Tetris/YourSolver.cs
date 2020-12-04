@@ -33,7 +33,7 @@ namespace TetrisClient
 
 		protected internal override Command Get(Board board)
         {
-            var tetromino = board.GetCurrentFigureType().ToTetromino();
+            var tetromino = board.GetCurrentTetromino();
             var figurePoint = board.GetCurrentFigurePoint();
             var futureFigures = board.GetFutureFigures();
 			futureFigures.Insert(0, tetromino);
@@ -50,7 +50,7 @@ namespace TetrisClient
                 FieldWidth = board.Size
 			};
 
-            return currentFieldState.GetCommand(futureFigures.ToArray());
+            return currentFieldState.GetCommand(futureFigures);
 		}
 	}
 }

@@ -354,6 +354,15 @@ namespace TetrisClient
 			return ValueOf(RawBoard.CurrentFigureType);
 		}
 
+        /// <summary>
+        /// Получить текущее тетрамино
+        /// </summary>
+        /// <returns></returns>
+		public Tetromino GetCurrentTetromino()
+        {
+            return this.GetCurrentFigureType().ToTetromino();
+        }
+
 		/// <summary>
 		/// Получить координату текущей фигуры
 		/// </summary>
