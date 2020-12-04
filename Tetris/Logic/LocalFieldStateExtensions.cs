@@ -227,6 +227,7 @@ namespace TetrisClient.Logic
 				for (var angle = 0; angle < 4; angle++)
                 {
                     var localFieldState = currentState.Clone();
+                    localFieldState.FigureAngle = angle;
 
 					if (figure.GetLength(localFieldState.FigureAngle) == length)
 					{
