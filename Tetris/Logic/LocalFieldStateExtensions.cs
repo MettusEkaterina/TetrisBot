@@ -131,8 +131,9 @@ namespace TetrisClient.Logic
                 return result;
 			}
 
-            if (level != nextFigures.Count - 1)
-            {
+			//if (level != nextFigures.Count - 1)
+			if (false)
+			{
                 foreach (var option in fieldStateOptions) // параллелить
                 {
                     option.Weight = option.ProcessNextTetromino(nextFigures, level + 1).Weight;
@@ -158,13 +159,13 @@ namespace TetrisClient.Logic
         {
             localFieldState.Weight += localFieldState.GetMetric1();
             localFieldState.Weight += localFieldState.GetMetric2();
-            localFieldState.Weight += localFieldState.GetMetric3();
+            //localFieldState.Weight += localFieldState.GetMetric3();
         }
 
         private static void Drop(this LocalFieldState localFieldState, Tetromino figure)
 		{
 			var tetrominoBottom = figure.GetBottom(localFieldState.FigureAngle);
-			var tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate] + 1;
+			var tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate] + 1; //IndexOutOfBoundException
 
 			for (var i = 1; i < figure.GetLength(localFieldState.FigureAngle); i++)
 			{
@@ -203,7 +204,12 @@ namespace TetrisClient.Logic
 
 				for (var j = currentState.FieldWidth - 1; j >= 0; j--)
 				{
-					if (!space && length == 0 && currentState.ColumnsHeight[j] < line)
+                    if (length > 4)
+                    {
+                        stop = true;
+                        break;
+                    }
+                    else if (!space && length == 0 && currentState.ColumnsHeight[j] < line)
 					{
 						distance = j;
 						length++;
@@ -323,7 +329,7 @@ namespace TetrisClient.Logic
 
                         var tetrominoHeight = figure.GetHeight(localFieldState.FigureAngle);
 
-						for (var j = 0; i < tetrominoHeight.Length; i++)
+						for (var j = 0; j < tetrominoHeight.Length; j++)
 						{
 							localFieldState.ColumnsHeight[i + j] += tetrominoHeight[j];
 						}

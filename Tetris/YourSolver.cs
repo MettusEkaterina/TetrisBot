@@ -37,6 +37,8 @@ namespace TetrisClient
             var figurePoint = board.GetCurrentFigurePoint();
             var futureFigures = board.GetFutureFigures();
 			futureFigures.Insert(0, tetromino);
+			
+			board.ClearCurrentTetramino();
             var (columnsHeight, holes) = board.GetFieldCharacteristics();
 
             var currentFieldState = new LocalFieldState

@@ -62,14 +62,27 @@ namespace TetrisClient
 			return field;
 		}
 
+        public void ClearCurrentTetramino()
+        {
+            var currentFigure = GetCurrentFigureType();
+            var currentFigurePoint = GetCurrentFigurePoint();
+            var currentFigurePoints = GetFigurePoints(currentFigurePoint, currentFigure);
+			currentFigurePoints.Add(currentFigurePoint);
+
+            foreach (var point in currentFigurePoints)
+            {
+                Set(point.X, point.Y, '.');
+            }
+        }
+
         /// <summary>
         /// Получить характеристики поля: высоты поверхности содержимого стакана и список дырок
         /// </summary>
         /// <returns></returns>
-        public (int[] columnsHeight, List<Point> holes) GetFieldCharacteristics()
+        public (List<int> columnsHeight, List<Point> holes) GetFieldCharacteristics()
         {
             var field = GetField();
-            var columnsHeight = new int[Size];
+            var columnsHeight = new List<int>(new int[Size]);
 			var holes = new List<Point>();
 
             for (var i = 0; i < Size; i++)
@@ -243,6 +256,31 @@ namespace TetrisClient
 			}
 			return count;
 		}
+
+        /// <summary>
+        /// Получить клетки, являющиеся заданным элементом
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public List<Point> GetFigurePoints(Point elementPoint, Element element)
+        {
+            var points = new List<Point>();
+
+            for (int i = elementPoint.X - 1; i < elementPoint.X + 2; i++)
+            {
+                for (int j = elementPoint.Y - 1; j < elementPoint.Y + 2; j++)
+                {
+                    if (i == elementPoint.X && j == elementPoint.Y)
+						continue;
+                    if (IsAt(i, j, element))
+                        points.Add(new Point(i, j));
+                }
+            }
+
+            return points;
+        }
 
 		/// <summary>
 		/// Подсчитать количество соседних клеток, являющихся заданным элементом.

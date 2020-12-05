@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TetrisClient.Logic
 {
@@ -27,9 +28,24 @@ namespace TetrisClient.Logic
             }
         }
 
-        public static T Clone<T>(this T source)
+        public static LocalFieldState Clone(this LocalFieldState source)
         {
-            return Activator.CreateInstance<T>();
+            var holes = new List<Point>();
+            holes.AddRange(source.Holes);
+
+            var columnsHeight = new List<int>();
+            columnsHeight.AddRange(source.ColumnsHeight);
+
+            return new LocalFieldState
+            {
+                FigureCoordinate = source.FigureCoordinate,
+                FigureAngle = source.FigureAngle,
+                ColumnsHeight = columnsHeight,
+                Holes = holes,
+                Weight = source.Weight,
+                FieldHeight = source.FieldHeight,
+                FieldWidth = source.FieldWidth
+            };
         }
     }
 }
