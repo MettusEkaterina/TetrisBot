@@ -349,7 +349,7 @@ namespace TetrisClient.Logic
 
 						localFieldState.FigureCoordinate = i;
 
-						if (tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)
+						if (!currentState.bb || tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)
 						{
 							options.Add(localFieldState);
 						}
@@ -436,7 +436,7 @@ namespace TetrisClient.Logic
 
             var searchedCombinations = false;
 
-			if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 10)
+			if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 10 || !currentState.bb)
             {
                 searchedCombinations = true;
                 options = currentState.GetOptionsCombs(figure);
