@@ -335,6 +335,10 @@ namespace TetrisClient.Logic
 					{
                         var localFieldState = currentState.Clone();
                         localFieldState.FigureAngle = figure.GetRotationsNumber(comb);
+						if(localFieldState.FigureAngle == 4)
+						{
+							continue;
+						}
 
                         var tetrominoHeight = figure.GetHeight(localFieldState.FigureAngle);
 
