@@ -11,7 +11,7 @@ namespace TetrisClient.Logic
 		private const int WeightHole = 20;
 		private const int СoefficientMetric1 = 1;
 		private const int СoefficientMetric2 = 1;
-		private const int СoefficientMetric3 = 1;
+		private const int СoefficientMetric3 = 2;
 
 
         private static bool[,] FiguresCombinations =
@@ -515,10 +515,13 @@ namespace TetrisClient.Logic
 
 			for (var i = 0; i < (int)Tetromino.All; i++)
 			{
-				if(combinationsNumber[i] != 0)
+				if(i != (int)Tetromino.I)
 				{
-					weight += 30 -  10*(Math.Pow(2.0, (double)combinationsNumber[i]) /
-						(Math.Pow(3, (double)combinationsNumber[i]- 1))); //арифметическая прогрессия b1 = 10 q = 2/3 n = CombinationsNumber[i]
+					if(combinationsNumber[i] != 0)
+					{
+						weight += 20 -  10 /(Math.Pow(2, (double)combinationsNumber[i]- 1)); //арифметическая прогрессия b1 = 10 q = 2/3 n = CombinationsNumber[i]
+					}
+					weight -= 13
 				}
 			}
 
