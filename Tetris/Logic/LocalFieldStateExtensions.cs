@@ -345,7 +345,7 @@ namespace TetrisClient.Logic
 
 						localFieldState.FigureCoordinate = i;
 
-						if (!currentState.IsITetrominoFound || tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)  // ATTENTION -1????
+						if (/*!currentState.IsITetrominoFound ||*/ tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)  // ATTENTION -1????
                         {
 							options.Add(localFieldState);
 						}
@@ -367,13 +367,12 @@ namespace TetrisClient.Logic
 				{
 					continue;
 				}
-
-                var localFieldState = currentState.Clone();
-                localFieldState.FigureAngle = angle;
-
-				for (var distance = 0; distance < currentState.FieldWidth - figure.GetLength(localFieldState.FigureAngle); distance++)
+				
+				for (var distance = 0; distance < currentState.FieldWidth - figure.GetLength(angle) + 1; distance++)
 				{
-                    localFieldState.FigureCoordinate = distance;
+                    var localFieldState = currentState.Clone();
+                    localFieldState.FigureAngle = angle;
+					localFieldState.FigureCoordinate = distance;
                     localFieldState.Drop(figure);
 
 					if (localFieldState.Holes.Count < holes)
@@ -411,42 +410,42 @@ namespace TetrisClient.Logic
 		{
 			var options = new List<LocalFieldState>();
 
-			if (figure == Tetromino.I && currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight) >= 4)
-            {
-                var localFieldState = currentState.Clone();
-                localFieldState.FigureCoordinate = currentState.FieldWidth - 1;
-                localFieldState.FigureAngle = 0;
+			//if (figure == Tetromino.I && currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight) >= 4)
+   //         {
+   //             var localFieldState = currentState.Clone();
+   //             localFieldState.FigureCoordinate = currentState.FieldWidth - 1;
+   //             localFieldState.FigureAngle = 0;
 
-				for (var i = 3; i >= 0; i--)
-				{
-					if (!localFieldState.Holes.Exists(hole => hole.Y == i)) //в строке i нет дырки
-					{
-                        localFieldState.RemoveLine(i);
-					}
-				}
+			//	for (var i = 3; i >= 0; i--)
+			//	{
+			//		if (!localFieldState.Holes.Exists(hole => hole.Y == i)) //в строке i нет дырки
+			//		{
+   //                     localFieldState.RemoveLine(i);
+			//		}
+			//	}
 
-				options.Add(localFieldState);
+			//	options.Add(localFieldState);
 
-				return options;
-			}
+			//	return options;
+			//}
 
-            var searchedCombinations = false;
+   //         var searchedCombinations = false;
 
-			if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 8 || !currentState.IsITetrominoFound)
-            {
-                searchedCombinations = true;
-                options = currentState.GetOptionsCombs(figure);
-            }
+			//if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 8 /*|| !currentState.IsITetrominoFound*/)
+   //         {
+   //             searchedCombinations = true;
+   //             options = currentState.GetOptionsCombs(figure);
+   //         }
 
-			if (options.Count == 0)
-			{
-				options = currentState.GetOptionsLine(figure);
-			}
+			//if (options.Count == 0)
+			//{
+			//	options = currentState.GetOptionsLine(figure);
+			//}
 
-			if (options.Count == 0 && !searchedCombinations)
-			{
-				options = currentState.GetOptionsCombs(figure);
-            }
+			//if (options.Count == 0 && !searchedCombinations)
+			//{
+			//	options = currentState.GetOptionsCombs(figure);
+   //         }
 
 			if (options.Count == 0)
 			{

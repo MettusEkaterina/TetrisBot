@@ -315,7 +315,7 @@
                 case Tetromino.I:
                 {
                     if (angle == 1)
-                        return -3;
+                        return 2;
                     else
                         return 0;
                 }
@@ -324,12 +324,12 @@
                     if (angle == 2)
                         return 0;
                     else 
-                        return -1;
+                        return 1;
                 }
                 case Tetromino.L:
                 {
                     if (angle == 1 || angle == 2 || angle == 3)
-                        return -1;
+                        return 1;
                     else
                         return 0;
                 }
@@ -342,21 +342,21 @@
                     if (angle == 1)
                         return 0;
                     else
-                        return -1;
+                        return 1;
                 }
                 case Tetromino.Z:
                 {
                     if (angle == 1)
                         return 0;
                     else
-                        return -1;
+                        return 1;
                 }
                 case Tetromino.T:
                 {
                     if (angle == 1)
                         return 0;
                     else
-                        return -1;
+                        return 1;
                 }
                 default:
                     return 0;

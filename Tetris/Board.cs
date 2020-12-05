@@ -279,9 +279,9 @@ namespace TetrisClient
         {
             var points = new List<Point>();
 
-            for (int i = elementPoint.X - 1; i < elementPoint.X + 2; i++)
+            for (int i = elementPoint.X - 2; i <= elementPoint.X + 2; i++)
             {
-                for (int j = elementPoint.Y - 1; j < elementPoint.Y + 2; j++)
+                for (int j = elementPoint.Y - 2; j <= elementPoint.Y + 2; j++)
                 {
                     if (IsAt(i, j, element))
                         points.Add(new Point(i, j));

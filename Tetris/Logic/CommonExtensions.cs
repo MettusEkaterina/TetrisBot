@@ -45,7 +45,7 @@ namespace TetrisClient.Logic
                 Weight = source.Weight,
                 FieldHeight = source.FieldHeight,
                 FieldWidth = source.FieldWidth,
-                IsITetrominoFound = source.IsITetrominoFound
+                //IsITetrominoFound = source.IsITetrominoFound
             };
         }
     }
