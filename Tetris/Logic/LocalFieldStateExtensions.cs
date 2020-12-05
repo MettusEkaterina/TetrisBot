@@ -5,9 +5,8 @@ using System.Linq;
 namespace TetrisClient.Logic
 {
 	public static class LocalFieldStateExtensions
-	{
-
-		private const int WeightLineRemoved = 20;
+    {
+        private const int WeightLineRemoved = 0; //20;
 		private const int WeightHole = 20;
 		private const double СoefficientMetric1 = 0.7;
 		private const double СoefficientMetric2 = 0.3;
@@ -140,7 +139,7 @@ namespace TetrisClient.Logic
 			}
 
 			//if (level != nextFigures.Count - 1)
-            if (level != 3)
+            if (level != 3)   // мало вероятно 4
             {
                 foreach (var option in fieldStateOptions) // параллелить
                 {
@@ -168,9 +167,7 @@ namespace TetrisClient.Logic
 
         private static void UpdateWeight(this LocalFieldState localFieldState)
         {
-            // for debug
-
-			localFieldState.Weight += СoefficientMetric1 * localFieldState.GetMetric1();
+            localFieldState.Weight += СoefficientMetric1 * localFieldState.GetMetric1();
             localFieldState.Weight += СoefficientMetric2 * localFieldState.GetMetric2();
             //localFieldState.Weight += СoefficientMetric3 * localFieldState.GetMetric3();
         }
@@ -408,7 +405,7 @@ namespace TetrisClient.Logic
 
                     var tetrominoLength = figure.GetLength(localFieldState.FigureAngle);
 
-                    if (tetrominoLength + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0 /* || !currentState.IsITetrominoFound*/ )  // ATTENTION -1????
+                    if (!localFieldState.IsITetrominoFound)
                     {
                         if (localFieldState.Holes.Count < holes)
                         {
@@ -421,8 +418,23 @@ namespace TetrisClient.Logic
                             options.Add(localFieldState);
                         }
                     }
-				}
-			}
+                    else if (currentState.ColumnsHeight.Max() > 8 || 
+                             tetrominoLength + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || 
+                             options.Count == 0)
+                    {
+                        if (localFieldState.Holes.Count < holes)
+                        {
+                            options.Clear();
+                            holes = localFieldState.Holes.Count;
+                            options.Add(localFieldState);
+                        }
+                        else if (localFieldState.Holes.Count == holes)
+                        {
+                            options.Add(localFieldState);
+                        }
+                    }
+                }
+            }
 
 			return options;
 		}

@@ -20,6 +20,7 @@
  * #L%
  */
 
+using System;
 using TetrisClient.Logic;
 
 namespace TetrisClient
@@ -27,6 +28,7 @@ namespace TetrisClient
 	internal class YourSolver : AbstractSolver
 	{
         private bool IsITetrominoFound = false;
+        private int TicksWithoutITetromino = 0;
 
 		public YourSolver(string server)
 			: base(server)
@@ -35,21 +37,28 @@ namespace TetrisClient
 
 		protected internal override Command Get(Board board)
         {
+            System.Diagnostics.Stopwatch myStopwatch = new System.Diagnostics.Stopwatch();
+            myStopwatch.Start(); //запуск
+            
             var tetromino = board.GetCurrentTetromino();
             var figurePoint = board.GetCurrentFigurePoint();
             var futureFigures = board.GetFutureFigures();
 			futureFigures.Insert(0, tetromino);
 			var (columnsHeight, holes) = board.GetFieldCharacteristics();
 
-            if (!IsITetrominoFound && tetromino == Tetromino.I)
-            {
-                IsITetrominoFound = true;
-            }
-
-            // for debug
             if (tetromino == Tetromino.I)
             {
-                var a = 0;
+                TicksWithoutITetromino = 0;
+                IsITetrominoFound = true;
+            }
+            else
+            {
+                TicksWithoutITetromino++;
+            }
+
+            if (TicksWithoutITetromino > 10)
+            {
+                IsITetrominoFound = false;
             }
 
             var currentFieldState = new LocalFieldState
@@ -64,7 +73,17 @@ namespace TetrisClient
                 IsITetrominoFound = this.IsITetrominoFound
 			};
 
-            return currentFieldState.GetCommand(futureFigures);
-		}
+            var command = currentFieldState.GetCommand(futureFigures);
+
+            myStopwatch.Stop();
+            TimeSpan ts = myStopwatch.Elapsed;
+
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
+            Console.WriteLine("RunTime " + elapsedTime);
+
+            return command;
+        }
 	}
 }
