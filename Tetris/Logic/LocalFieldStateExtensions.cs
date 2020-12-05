@@ -6,6 +6,14 @@ namespace TetrisClient.Logic
 {
 	public static class LocalFieldStateExtensions
 	{
+
+		private const int WeightLineRemoved = 20;
+		private const int WeightHole = 20;
+		private const int СoefficientMetric1 = 1;
+		private const int СoefficientMetric2 = 1;
+		private const int СoefficientMetric3 = 1;
+
+
         private static bool[,] FiguresCombinations =
         { 
             //        OO     OU      OD     UO     DO     DU     UU     DD     U      D      O     All
@@ -162,9 +170,9 @@ namespace TetrisClient.Logic
         {
             // for debug
 
-			localFieldState.Weight += localFieldState.GetMetric1();
-            //localFieldState.Weight += localFieldState.GetMetric2();
-            //localFieldState.Weight += localFieldState.GetMetric3();
+			localFieldState.Weight += СoefficientMetric1*localFieldState.GetMetric1();
+            //localFieldState.Weight += СoefficientMetric2*localFieldState.GetMetric2();
+            //localFieldState.Weight += СoefficientMetric3*localFieldState.GetMetric3();
         }
 
         private static void Drop(this LocalFieldState localFieldState, Tetromino figure)
@@ -466,10 +474,10 @@ namespace TetrisClient.Logic
 
 			for (var i = 0; i < localFieldState.FieldWidth - 1; i++)
 			{
-				weight = Math.Abs(localFieldState.ColumnsHeight[i] - localFieldState.ColumnsHeight[i + 1]);
+				weight += Math.Abs(localFieldState.ColumnsHeight[i] - localFieldState.ColumnsHeight[i + 1]);
 			}
 
-			return weight; //нормирование
+			return 50 - weight; //нормирование
 		}
 
 		private static double GetMetric3(this LocalFieldState localFieldState)
