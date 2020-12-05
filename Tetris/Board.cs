@@ -68,9 +68,15 @@ namespace TetrisClient
         public void ClearCurrentTetramino()
         {
             var currentFigure = GetCurrentFigureType();
+
+			// for debug
+            if (currentFigure == Element.I || currentFigure == Element.J || currentFigure == Element.S || currentFigure == Element.Z || currentFigure == Element.T)
+            {
+                var a = 0;
+            }
+
             var currentFigurePoint = GetCurrentFigurePoint();
             var currentFigurePoints = GetFigurePoints(currentFigurePoint, currentFigure);
-			currentFigurePoints.Add(currentFigurePoint);
 
             foreach (var point in currentFigurePoints)
             {
@@ -277,8 +283,6 @@ namespace TetrisClient
             {
                 for (int j = elementPoint.Y - 1; j < elementPoint.Y + 2; j++)
                 {
-                    if (i == elementPoint.X && j == elementPoint.Y)
-						continue;
                     if (IsAt(i, j, element))
                         points.Add(new Point(i, j));
                 }

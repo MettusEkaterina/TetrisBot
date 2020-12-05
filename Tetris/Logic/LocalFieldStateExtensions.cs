@@ -147,17 +147,13 @@ namespace TetrisClient.Logic
                 }
             }
 
-			// for debug
-
-            //foreach (var option in fieldStateOptions)
-            //{
-            //    if (option.Weight > result.Weight)
-            //    {
-            //        result = option;
-            //    }
-            //}
-
-            result = fieldStateOptions.First();
+            foreach (var option in fieldStateOptions)
+            {
+                if (option.Weight > result.Weight)
+                {
+                    result = option;
+                }
+            }
 
             return result;
         }
@@ -204,7 +200,7 @@ namespace TetrisClient.Logic
 			var options = new List<LocalFieldState>();
 			var holes = 1000;
 
-			for (var line = currentState.ColumnsHeight.Max(); line >= currentState.ColumnsHeight.Min(); line--)
+			for (var line = currentState.ColumnsHeight.Max() - 1; line >= currentState.ColumnsHeight.Min(); line--)
 			{
 				var length = 0;
 				var stop = false;
@@ -349,8 +345,8 @@ namespace TetrisClient.Logic
 
 						localFieldState.FigureCoordinate = i;
 
-						if (!currentState.IsITetrominoFound || tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)
-						{
+						if (!currentState.IsITetrominoFound || tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)  // ATTENTION -1????
+                        {
 							options.Add(localFieldState);
 						}
 					}
@@ -436,7 +432,7 @@ namespace TetrisClient.Logic
 
             var searchedCombinations = false;
 
-			if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 10 || !currentState.IsITetrominoFound)
+			if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 8 || !currentState.IsITetrominoFound)
             {
                 searchedCombinations = true;
                 options = currentState.GetOptionsCombs(figure);
