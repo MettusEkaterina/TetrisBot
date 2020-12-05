@@ -136,7 +136,8 @@ namespace TetrisClient.Logic
 			{
                 foreach (var option in fieldStateOptions) // параллелить
                 {
-                    option.Weight = option.ProcessNextTetromino(nextFigures, level + 1).Weight;
+                    //option.Weight = option.ProcessNextTetromino(nextFigures, level + 1).Weight;
+                    option.Weight += option.ProcessNextTetromino(nextFigures, level + 1).Weight;
                 }
             }
             else
@@ -276,6 +277,7 @@ namespace TetrisClient.Logic
 							if (!stop)
 							{
                                 localFieldState.RemoveLine(line - i);
+                                localFieldState.Weight += 20; // 20 - temporary, need to recalc
                                 lineRemoved = true;
                             }
 						}
@@ -415,7 +417,7 @@ namespace TetrisClient.Logic
 		{
 			var options = new List<LocalFieldState>();
 
-            if (figure == Tetromino.I && currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight) >= 4)
+            if (figure == Tetromino.I /*&& currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0*/ && GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight) >= 4)
             {
                 var localFieldState = currentState.Clone();
                 localFieldState.FigureCoordinate = currentState.FieldWidth - 1;
@@ -442,17 +444,19 @@ namespace TetrisClient.Logic
             //    options = currentState.GetOptionsCombs(figure);
             //}
 
-            //if (options.Count == 0)
-            //{
-            //    options = currentState.GetOptionsLine(figure);
-            //}
+            if (options.Count == 0)
+            {
+                options = currentState.GetOptionsLine(figure);
+            }
+
+            var randomOption = options.Count == 0 ? null : options.First();
 
             //if (options.Count == 0 && !searchedCombinations)
             //{
             //    options = currentState.GetOptionsCombs(figure);
             //}
 
-            if (options.Count == 0)
+            if (options.Count == 0 || randomOption.Holes.Count > 0)
 			{
 				options = currentState.GetOptionsHoles(figure);
 			}
