@@ -239,12 +239,12 @@ namespace TetrisClient.Logic
 					}
 				}
 
-				if (stop)
+				if (stop || length == 0)
 				{
 					break;
 				}
 
-				distance -= length;
+				distance -= length+1;
 
 				for (var angle = 0; angle < 4; angle++)
                 {
