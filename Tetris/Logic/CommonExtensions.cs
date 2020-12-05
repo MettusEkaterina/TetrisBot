@@ -44,7 +44,8 @@ namespace TetrisClient.Logic
                 Holes = holes,
                 Weight = source.Weight,
                 FieldHeight = source.FieldHeight,
-                FieldWidth = source.FieldWidth
+                FieldWidth = source.FieldWidth,
+                IsITetrominoFound = source.IsITetrominoFound
             };
         }
     }

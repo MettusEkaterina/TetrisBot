@@ -26,6 +26,8 @@ namespace TetrisClient
 {
 	internal class YourSolver : AbstractSolver
 	{
+        private bool IsITetrominoFound = false;
+
 		public YourSolver(string server)
 			: base(server)
 		{
@@ -39,6 +41,11 @@ namespace TetrisClient
 			futureFigures.Insert(0, tetromino);
 			var (columnsHeight, holes) = board.GetFieldCharacteristics();
 
+            if (!IsITetrominoFound && tetromino == Tetromino.I)
+            {
+                IsITetrominoFound = true;
+            }
+
             var currentFieldState = new LocalFieldState
             {
 				FigureCoordinate = figurePoint.X,
@@ -47,7 +54,8 @@ namespace TetrisClient
 				Holes = holes,
 				Weight = 0,
                 FieldHeight = board.Size,
-                FieldWidth = board.Size
+                FieldWidth = board.Size,
+                IsITetrominoFound = this.IsITetrominoFound
 			};
 
             return currentFieldState.GetCommand(futureFigures);
