@@ -147,18 +147,27 @@ namespace TetrisClient.Logic
                 }
             }
 
-            foreach (var option in fieldStateOptions.Where(option => option.Weight > result.Weight))
-            {
-                result = option;
-            }
+			// for debug
+
+            //foreach (var option in fieldStateOptions)
+            //{
+            //    if (option.Weight > result.Weight)
+            //    {
+            //        result = option;
+            //    }
+            //}
+
+            result = fieldStateOptions.First();
 
             return result;
         }
 
         private static void UpdateWeight(this LocalFieldState localFieldState)
         {
-            localFieldState.Weight += localFieldState.GetMetric1();
-            localFieldState.Weight += localFieldState.GetMetric2();
+            // for debug
+
+			localFieldState.Weight += localFieldState.GetMetric1();
+            //localFieldState.Weight += localFieldState.GetMetric2();
             //localFieldState.Weight += localFieldState.GetMetric3();
         }
 
@@ -336,7 +345,7 @@ namespace TetrisClient.Logic
 
 						localFieldState.FigureCoordinate = i;
 
-						if (tetrominoHeight.Length + localFieldState.FigureCoordinate < currentState.FieldWidth - 1 || options.Count == 0)
+						if (tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0)
 						{
 							options.Add(localFieldState);
 						}
@@ -389,7 +398,7 @@ namespace TetrisClient.Logic
 
 			if (figure == Tetromino.I && currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Min() >= 3)
             {
-                var localFieldState = currentState.Clone(); // проверить, что корректно клонируется
+                var localFieldState = currentState.Clone();
                 localFieldState.FigureCoordinate = currentState.FieldWidth - 1;
                 localFieldState.FigureAngle = 0;
 
@@ -406,7 +415,7 @@ namespace TetrisClient.Logic
 				return options;
 			}
 
-            bool searchedCombinations = false;
+            var searchedCombinations = false;
 
 			if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 10)
             {
