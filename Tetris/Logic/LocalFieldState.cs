@@ -11,6 +11,6 @@ namespace TetrisClient.Logic
         public double Weight; // приоритет состояния игрового поля
         public int FieldHeight; // высота игрового поля
         public int FieldWidth; // ширина игрового поля
-        //public bool IsITetrominoFound; // падала ли ранее палочка
+        public bool IsITetrominoFound; // падала ли ранее палочка
     }
 }

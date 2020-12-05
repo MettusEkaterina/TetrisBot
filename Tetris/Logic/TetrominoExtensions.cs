@@ -127,7 +127,7 @@
                     else if (angle == 1)
                         return new int[] {0, 1};
                     else if (angle == 2)
-                        return new int[] {0, -1, 1};
+                        return new int[] {0, -1, 0};
                     else if (angle == 3)
                         return new int[] {0, -1};
                     else
