@@ -62,6 +62,9 @@ namespace TetrisClient
 			return field;
 		}
 
+		/// <summary>
+		/// Удалить падающее тетрамино с игрового поля
+		/// </summary>
         public void ClearCurrentTetramino()
         {
             var currentFigure = GetCurrentFigureType();
@@ -81,7 +84,9 @@ namespace TetrisClient
         /// <returns></returns>
         public (List<int> columnsHeight, List<Point> holes) GetFieldCharacteristics()
         {
-            var field = GetField();
+            this.ClearCurrentTetramino();
+
+			var field = GetField();
             var columnsHeight = new List<int>(new int[Size]);
 			var holes = new List<Point>();
 
