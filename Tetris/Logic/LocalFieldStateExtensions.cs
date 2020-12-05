@@ -7,11 +7,12 @@ namespace TetrisClient.Logic
 	public static class LocalFieldStateExtensions
     {
         private const int WeightLineRemoved = 0; //20;
-		private const int WeightHole = 20;
+        private const int WeightHole = 0; //20;
 		private const double СoefficientMetric1 = 0.7;
 		private const double СoefficientMetric2 = 0.3;
-		private const double СoefficientMetric3 = 2;
-
+		private const double СoefficientMetric3 = 0; //0.8;
+        private const double CoefficientMetric4 = 0;
+        private const int NormalisationMetric4 = 10;
 
         private static bool[,] FiguresCombinations =
         { 
@@ -28,6 +29,19 @@ namespace TetrisClient.Logic
 
         public static Command GetCommand(this LocalFieldState currentState, List<Tetromino> nextFigures)
         {
+            //hardcode for debug
+
+            //currentState.ColumnsHeight = new List<int>(18)
+            //{
+            //    12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 0
+            //};
+            //nextFigures = new List<Tetromino>
+            //{
+            //    Tetromino.L, Tetromino.S, Tetromino.S, Tetromino.S, Tetromino.S
+            //};
+            //currentState.IsITetrominoFound = true;
+            //currentState.Holes.Clear();
+
             var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0);
             var rotationsNumber = resultFieldState.FigureAngle;
             var stepsNumber = resultFieldState.FigureCoordinate - currentState.FigureCoordinate + nextFigures.First().GetAdditionalStepsAfterRotations(resultFieldState.FigureAngle);
@@ -137,7 +151,7 @@ namespace TetrisClient.Logic
 
                 return result;
 			}
-
+            
 			//if (level != nextFigures.Count - 1)
             if (level != 3)   // мало вероятно 4
             {
@@ -169,7 +183,7 @@ namespace TetrisClient.Logic
         {
             localFieldState.Weight += СoefficientMetric1 * localFieldState.GetMetric1();
             localFieldState.Weight += СoefficientMetric2 * localFieldState.GetMetric2();
-            //localFieldState.Weight += СoefficientMetric3 * localFieldState.GetMetric3();
+            localFieldState.Weight += СoefficientMetric3 * localFieldState.GetMetric3();
         }
 
         private static int Drop(this LocalFieldState localFieldState, Tetromino figure)
@@ -389,6 +403,7 @@ namespace TetrisClient.Logic
                     localFieldState.FigureAngle = angle;
 					localFieldState.FigureCoordinate = distance;
                     var maxProducedColumnHeight = localFieldState.Drop(figure);
+                    localFieldState.Weight += CoefficientMetric4 * (NormalisationMetric4 - maxProducedColumnHeight);
 
                     for (var i = 0; i < 4; i++)
                     {
@@ -455,13 +470,14 @@ namespace TetrisClient.Logic
         }
 
 		private static List<LocalFieldState> GetFieldStateOptions(this LocalFieldState currentState, Tetromino figure)
-		{
-            // hardcode for debug
-            //currentState.ColumnsHeight = new List<int>(17)
-            //{
-            //    8, 8, 7, 6, 3, 7, 5, 8, 6, 7, 3, 3, 5, 5, 5, 8, 0, 1
-            //};
-            //figure = Tetromino.O;
+		{ 
+           //hardcode for debug
+
+           //currentState.ColumnsHeight = new List<int>(17)
+           //{
+           //     8, 8, 7, 6, 3, 7, 5, 8, 6, 7, 3, 3, 5, 5, 5, 8, 0, 1
+           //};
+           //figure = Tetromino.O;
 
             var options = new List<LocalFieldState>();
             var minColumnHeightExceptLastRight= GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight);

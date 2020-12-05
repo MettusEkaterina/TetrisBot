@@ -38,15 +38,15 @@ namespace TetrisClient
 		protected internal override Command Get(Board board)
         {
             System.Diagnostics.Stopwatch myStopwatch = new System.Diagnostics.Stopwatch();
-            myStopwatch.Start(); //запуск
-            
+            myStopwatch.Start();
+
             var tetromino = board.GetCurrentTetromino();
             var figurePoint = board.GetCurrentFigurePoint();
             var futureFigures = board.GetFutureFigures();
 			futureFigures.Insert(0, tetromino);
 			var (columnsHeight, holes) = board.GetFieldCharacteristics();
 
-            if (tetromino == Tetromino.I)
+            if (futureFigures.Contains(Tetromino.I))
             {
                 TicksWithoutITetromino = 0;
                 IsITetrominoFound = true;
@@ -56,7 +56,7 @@ namespace TetrisClient
                 TicksWithoutITetromino++;
             }
 
-            if (TicksWithoutITetromino > 10)
+            if (TicksWithoutITetromino > 12) //10?
             {
                 IsITetrominoFound = false;
             }
@@ -76,9 +76,9 @@ namespace TetrisClient
             var command = currentFieldState.GetCommand(futureFigures);
 
             myStopwatch.Stop();
-            TimeSpan ts = myStopwatch.Elapsed;
+            var ts = myStopwatch.Elapsed;
 
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            var elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                 ts.Hours, ts.Minutes, ts.Seconds,
                 ts.Milliseconds / 10);
             Console.WriteLine("RunTime " + elapsedTime);
