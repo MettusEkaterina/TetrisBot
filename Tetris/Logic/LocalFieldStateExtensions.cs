@@ -339,6 +339,7 @@ namespace TetrisClient.Logic
 					{
                         var localFieldState = currentState.Clone();
                         localFieldState.FigureAngle = figure.GetRotationsNumber(comb);
+
 						if(localFieldState.FigureAngle == 4)
 						{
 							continue;
@@ -521,8 +522,9 @@ namespace TetrisClient.Logic
 					{
 						weight += 20 -  10 /(Math.Pow(2, (double)combinationsNumber[i]- 1)); //арифметическая прогрессия b1 = 10 q = 2/3 n = CombinationsNumber[i]
 					}
-					weight -= 13
-				}
+
+                    weight -= 13;
+                }
 			}
 
 			return weight;
