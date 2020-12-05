@@ -99,7 +99,7 @@ namespace TetrisClient
                     if (field[i, j] != '.' && !isSurfaceFound)
                     {
                         isSurfaceFound = true;
-                        columnsHeight[i] = j;
+                        columnsHeight[i] = j + 1;
                         continue;
                     }
 

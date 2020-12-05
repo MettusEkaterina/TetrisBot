@@ -244,7 +244,7 @@ namespace TetrisClient.Logic
 					break;
 				}
 
-				distance -= length+1;
+				distance -= length + 1;
 
 				for (var angle = 0; angle < 4; angle++)
                 {
@@ -396,11 +396,26 @@ namespace TetrisClient.Logic
 			return options;
 		}
 
+        private static int GetMinColumnHeightExceptLastRight(List<int> columnsHeight)
+        {
+            var min = columnsHeight.First();
+
+            for (var i = 1; i < columnsHeight.Count - 1; i++)
+            {
+                if (columnsHeight[i] < min)
+                {
+                    min = columnsHeight[i];
+                }
+            }
+
+            return min;
+        }
+
 		private static List<LocalFieldState> GetFieldStateOptions(this LocalFieldState currentState, Tetromino figure)
 		{
 			var options = new List<LocalFieldState>();
 
-			if (figure == Tetromino.I && currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Min() >= 3)
+			if (figure == Tetromino.I && currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight) >= 4)
             {
                 var localFieldState = currentState.Clone();
                 localFieldState.FigureCoordinate = currentState.FieldWidth - 1;
