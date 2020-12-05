@@ -6,7 +6,7 @@ namespace TetrisClient.Logic
     {
         public int FigureCoordinate; //расстояние от фигуры до левого края 
 		public int FigureAngle; //угол, на который повернута падающая заданная фигура (количество поворотов по часовой стрелке)
-        public int[] ColumnsHeight;
+        public List<int> ColumnsHeight;
         public List<Point> Holes;
         public double Weight; // приоритет состояния игрового поля
         public int FieldHeight; // высота игрового поля
