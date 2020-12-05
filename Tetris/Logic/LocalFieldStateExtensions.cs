@@ -174,13 +174,13 @@ namespace TetrisClient.Logic
         private static void Drop(this LocalFieldState localFieldState, Tetromino figure)
 		{
 			var tetrominoBottom = figure.GetBottom(localFieldState.FigureAngle);
-			var tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate] + 1; //IndexOutOfBoundException
+			var tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate]; //IndexOutOfBoundException
 
 			for (var i = 1; i < figure.GetLength(localFieldState.FigureAngle); i++)
 			{
-				if (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] + 1 > tetraminoFloor + tetrominoBottom[i])
+				if (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] > tetraminoFloor + tetrominoBottom[i])
 				{
-					tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] + 1 - tetrominoBottom[i];
+					tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] - tetrominoBottom[i];
 				}
 			}
 
@@ -188,10 +188,10 @@ namespace TetrisClient.Logic
 
 			for (var i = 0; i < figure.GetLength(localFieldState.FigureAngle); i++)
 			{
-				while (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] + 1 < tetraminoFloor + tetrominoBottom[i])
+				while (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] < tetraminoFloor + tetrominoBottom[i])
                 {
                     localFieldState.Holes.Add(new Point(localFieldState.FigureCoordinate + i,
-                        localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] + 1));
+                        localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i]));
                     localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i]++;
 				}
 
@@ -513,14 +513,14 @@ namespace TetrisClient.Logic
 
             for (var i = 0; i < localFieldState.FieldWidth; i++) // параллелить
             {
-                if (localFieldState.ColumnsHeight[i] >= line)
+                if (localFieldState.ColumnsHeight[i] - 1 >= line)
                 {
                     localFieldState.ColumnsHeight[i]--;
 
-                    if (localFieldState.ColumnsHeight[i] == line - 1)
+                    if (localFieldState.ColumnsHeight[i] - 1 == line - 1)
                     {
                         while (localFieldState.Holes.RemoveAll(hole =>
-                            hole.X == i && hole.Y == localFieldState.ColumnsHeight[i]) > 0)
+                            hole.X == i && hole.Y == localFieldState.ColumnsHeight[i] - 1 ) > 0)
                         {
                             localFieldState.ColumnsHeight[i]--;
                         }
