@@ -428,7 +428,7 @@ namespace TetrisClient.Logic
 
         private static double GetMetric1(this LocalFieldState localFieldState)
         {
-            return localFieldState.FieldHeight / 2 - localFieldState.ColumnsHeight.Max();
+            return localFieldState.FieldHeight - localFieldState.ColumnsHeight.Max();
         }
 
         private static double GetMetric2(this LocalFieldState localFieldState)
@@ -440,7 +440,7 @@ namespace TetrisClient.Logic
 				weight = Math.Abs(localFieldState.ColumnsHeight[i] - localFieldState.ColumnsHeight[i + 1]);
 			}
 
-			return weight - 12; //нормирование
+			return weight; //нормирование
 		}
 
 		private static double GetMetric3(this LocalFieldState localFieldState)
@@ -478,9 +478,11 @@ namespace TetrisClient.Logic
 
 			for (var i = 0; i < (int)Tetromino.All; i++)
 			{
-				weight += (30 * Math.Pow(2.0, (double)combinationsNumber[i])) /
-					(Math.Pow(3, (double)combinationsNumber[i])) - 30; //арифметическая прогрессия b1 = 10 q = 2/3 n = CombinationsNumber[i]
-				weight -= 15; // нормирование 
+				if(combinationsNumber[i] != 0)
+				{
+					weight += 30 -  10*(Math.Pow(2.0, (double)combinationsNumber[i]) /
+						(Math.Pow(3, (double)combinationsNumber[i]- 1))); //арифметическая прогрессия b1 = 10 q = 2/3 n = CombinationsNumber[i]
+				}
 			}
 
 			return weight;
