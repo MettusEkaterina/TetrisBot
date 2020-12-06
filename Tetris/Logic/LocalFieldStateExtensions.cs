@@ -6,11 +6,11 @@ namespace TetrisClient.Logic
 {
 	public static class LocalFieldStateExtensions
     {
+        private const double MaxSurfaceHeightMetricСoefficient = 1;
+		private const double SmoothnessMetricСoefficient = 1; //0.6
+		private const double FutureCombinationsMetricСoefficient = 1;
         private const int WeightLineRemoved = 0; //20;
         private const int WeightHole = 0; //20;
-		private const double СoefficientMetric1 = 1;
-		private const double СoefficientMetric2 = 1; //0.6
-		private const double СoefficientMetric3 = 1;
 
         private static bool[,] FiguresCombinations =
         { 
@@ -24,34 +24,11 @@ namespace TetrisClient.Logic
             /*T*/   {true,  false, false, false, false, true,  false, false, true,  true,  false, false},
             /*All*/ {false, false, false, false, false, false, false, false, false, false, false, false}
         };
-
+        
         public static Command GetCommand(this LocalFieldState currentState, List<Tetromino> nextFigures, bool tooLongCalculation)
         {
-            //hardcode for debug
-
-            //currentState.ColumnsHeight = new List<int>(18)
-            //{
-            //    12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 0
-            //};
-            //nextFigures = new List<Tetromino>
-            //{
-            //    Tetromino.L, Tetromino.S, Tetromino.S, Tetromino.S, Tetromino.S
-            //};
-            //currentState.IsITetrominoFound = true;
-            //currentState.Holes.Clear();
-
-            var tooMuchSameFigures = true;
-
-            for (var i = 1; i < nextFigures.Count; i++)
-            {
-                if (nextFigures[i] != nextFigures[0])
-                {
-                    tooMuchSameFigures = false;
-                    break;
-                }
-            }
-
-            var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0, tooMuchSameFigures, tooLongCalculation);
+            var tooManySameFigures = IsTooManySameFigures(nextFigures);
+            var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0, tooManySameFigures, tooLongCalculation);
             var rotationsNumber = resultFieldState.FigureAngle;
             var stepsNumber = resultFieldState.FigureCoordinate - currentState.FigureCoordinate + nextFigures.First().GetAdditionalStepsAfterRotations(resultFieldState.FigureAngle);
             var commands = new List<Command>();
@@ -168,7 +145,7 @@ namespace TetrisClient.Logic
                     option.Weight = option.ProcessNextTetromino(nextFigures, level + 1, tooManySameFigures, tooLongCalculation).Weight;
                 }
             }
-            else if ((tooLongCalculation || tooManySameFigures && nextFigures.First() != Tetromino.O) && level != 2)
+            else if (tooLongCalculation && level != 1 || (tooManySameFigures && nextFigures.First() != Tetromino.O && level != 2))
             {
                 foreach (var option in fieldStateOptions) // параллелить
                 {
@@ -196,30 +173,21 @@ namespace TetrisClient.Logic
 
         private static void UpdateWeight(this LocalFieldState localFieldState)
         {
-            localFieldState.Weight += СoefficientMetric1 * localFieldState.GetMetric1();
-            localFieldState.Weight += СoefficientMetric2 * localFieldState.GetMetric2();
-            localFieldState.Weight += СoefficientMetric3 * localFieldState.GetMetric3();
+            localFieldState.Weight += MaxSurfaceHeightMetricСoefficient * localFieldState.GetMaxSurfaceHeightMetric();
+            localFieldState.Weight += SmoothnessMetricСoefficient * localFieldState.GetSmoothnessMetric();
+            localFieldState.Weight += FutureCombinationsMetricСoefficient * localFieldState.GetFutureCombinationsMetric();
         }
-
+        
         private static int Drop(this LocalFieldState localFieldState, Tetromino figure)
 		{
-			var tetrominoBottom = figure.GetBottom(localFieldState.FigureAngle);
-			var tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate]; //IndexOutOfBoundException
-
-			for (var i = 1; i < figure.GetLength(localFieldState.FigureAngle); i++)
-			{
-				if (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] > tetraminoFloor + tetrominoBottom[i])
-				{
-					tetraminoFloor = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] - tetrominoBottom[i];
-				}
-			}
-
-			var tetrominoHeight = figure.GetHeight(localFieldState.FigureAngle);
+            var lowestTetraminoCell = figure.GetLowestTetraminoCell(localFieldState);
+            var tetrominoBottom = figure.GetBottom(localFieldState.FigureAngle);
+            var tetrominoHeight = figure.GetHeight(localFieldState.FigureAngle);
             var maxProducedColumnHeight = -1;
 
 			for (var i = 0; i < figure.GetLength(localFieldState.FigureAngle); i++)
 			{
-				while (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] < tetraminoFloor + tetrominoBottom[i])
+				while (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] < lowestTetraminoCell + tetrominoBottom[i])
                 {
                     localFieldState.Holes.Add(new Point(localFieldState.FigureCoordinate + i,
                         localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i]));
@@ -237,170 +205,8 @@ namespace TetrisClient.Logic
 
             return maxProducedColumnHeight;
         }
-
-        private static List<LocalFieldState> GetOptionsLine(this LocalFieldState currentState, Tetromino figure)
-		{
-			var options = new List<LocalFieldState>();
-			var holes = 1000;
-
-			for (var line = currentState.ColumnsHeight.Max() - 1; line >= currentState.ColumnsHeight.Min(); line--)
-			{
-				var lengthOfEmptySpaceForFigureToRemoveLine = 0;
-				var stop = false;
-				var isEmptySpace = false;
-				var rightBorderOfEmptySpace = -1;
-
-				for (var j = currentState.FieldWidth - 1; j >= 0; j--)
-				{
-                    if (lengthOfEmptySpaceForFigureToRemoveLine > 4)
-                    {
-                        stop = true;
-                        break;
-                    }
-                    else if (!isEmptySpace && lengthOfEmptySpaceForFigureToRemoveLine == 0 && currentState.ColumnsHeight[j] < line)
-					{
-						rightBorderOfEmptySpace = j;
-						lengthOfEmptySpaceForFigureToRemoveLine++;
-						isEmptySpace = true;
-					}
-					else if (isEmptySpace && currentState.ColumnsHeight[j] < line)
-					{
-						lengthOfEmptySpaceForFigureToRemoveLine++;
-					}
-					else if (isEmptySpace && currentState.ColumnsHeight[j] >= line)
-					{
-						isEmptySpace = false;
-					}
-					else if (!isEmptySpace && currentState.ColumnsHeight[j] < line && lengthOfEmptySpaceForFigureToRemoveLine != 0)
-					{
-						stop = true;
-						break;
-					}
-				}
-
-				if (stop || lengthOfEmptySpaceForFigureToRemoveLine == 0)
-				{
-					continue;
-				}
-
-				rightBorderOfEmptySpace = rightBorderOfEmptySpace - lengthOfEmptySpaceForFigureToRemoveLine + 1;
-
-				for (var angle = 0; angle < 4; angle++)
-                {
-                    var localFieldState = currentState.Clone();
-                    localFieldState.FigureAngle = angle;
-
-					if (figure.GetLength(localFieldState.FigureAngle) == lengthOfEmptySpaceForFigureToRemoveLine)
-					{
-                        localFieldState.FigureCoordinate = rightBorderOfEmptySpace;
-
-                        localFieldState.Drop(figure);
-
-						var lineRemoved = false;
-
-						for (var i = 0; i < 4; i++)
-                        {
-                            stop = false;
-
-							if (localFieldState.Holes.Exists(hole => hole.Y == line - i))
-							{
-								continue;
-							}
-
-							for (var k = 0; k < lengthOfEmptySpaceForFigureToRemoveLine; k++)
-							{
-								if (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + k] < line - i)
-								{
-									stop = true;
-									break;
-								}
-							}
-
-							if (!stop)
-							{
-                                localFieldState.RemoveLine(line - i);
-                                lineRemoved = true;
-                            }
-						}
-
-						if (!lineRemoved)
-						{
-							break;
-						}
-
-                        if (localFieldState.Holes.Count < holes)
-						{
-							options.Clear();
-							holes = localFieldState.Holes.Count;
-							options.Add(localFieldState);
-						}
-						else if (localFieldState.Holes.Count == holes)
-						{
-							options.Add(localFieldState);
-						}
-					}
-				}
-			}
-
-			return options;
-		}
-
-        private static List<LocalFieldState> GetOptionsCombs(this LocalFieldState currentState, Tetromino figure)
-		{
-			var options = new List<LocalFieldState>();
-
-			if (figure == Tetromino.I)
-			{
-				return options;
-			}
-
-			for (var i = 0; i < currentState.FieldWidth - 1; i++)
-            {
-                var combinations = new List<Combination>
-                {
-                    GetOneCellCombination(currentState.ColumnsHeight[i + 1] - currentState.ColumnsHeight[i])
-                };
-
-                if (i < currentState.FieldWidth - 2)
-                {
-                    combinations.Add(GetTwoCellCombination(
-                        currentState.ColumnsHeight[i + 1] - currentState.ColumnsHeight[i],
-                        currentState.ColumnsHeight[i + 2] - currentState.ColumnsHeight[i + 1]));
-                }
-
-                foreach (var comb in combinations)
-                {
-					if (FiguresCombinations[(int)figure, (int)comb])
-					{
-                        var localFieldState = currentState.Clone();
-                        localFieldState.FigureAngle = figure.GetRotationsNumber(comb);
-
-						if (localFieldState.FigureAngle == 4)
-						{
-							continue;
-						}
-
-                        var tetrominoHeight = figure.GetHeight(localFieldState.FigureAngle);
-
-						for (var j = 0; j < tetrominoHeight.Length; j++)
-						{
-							localFieldState.ColumnsHeight[i + j] += tetrominoHeight[j];
-						}
-
-						localFieldState.FigureCoordinate = i;
-
-						if (tetrominoHeight.Length + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || options.Count == 0 /* || !currentState.IsITetrominoFound*/ )  // ATTENTION -1????
-                        {
-							options.Add(localFieldState);
-						}
-					}
-				}
-			}
-
-			return options;
-		}
-
-		private static List<LocalFieldState> GetOptionsHoles(this LocalFieldState currentState, Tetromino figure)
+        
+		private static List<LocalFieldState> GetOptions(this LocalFieldState currentState, Tetromino figure)
 		{
 			var options = new List<LocalFieldState>();
 			var holes = 1000;
@@ -447,7 +253,7 @@ namespace TetrisClient.Logic
                             options.Add(localFieldState);
                         }
                     }
-                    else if (currentState.ColumnsHeight.Max() > 10 || 
+                    else if (currentState.ColumnsHeight.Max() > 11 || 
                              tetrominoLength + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || 
                              options.Count == 0)
                     {
@@ -467,32 +273,9 @@ namespace TetrisClient.Logic
 
 			return options;
 		}
-
-        private static int GetMinColumnHeightExceptLastRight(List<int> columnsHeight)
-        {
-            var min = columnsHeight.First();
-
-            for (var i = 1; i < columnsHeight.Count - 1; i++)
-            {
-                if (columnsHeight[i] < min)
-                {
-                    min = columnsHeight[i];
-                }
-            }
-
-            return min;
-        }
-
+        
 		private static List<LocalFieldState> GetFieldStateOptions(this LocalFieldState currentState, Tetromino figure)
 		{ 
-           //hardcode for debug
-
-           //currentState.ColumnsHeight = new List<int>(17)
-           //{
-           //     8, 8, 7, 6, 3, 7, 5, 8, 6, 7, 3, 3, 5, 5, 5, 8, 0, 1
-           //};
-           //figure = Tetromino.O;
-
             var options = new List<LocalFieldState>();
             var minColumnHeightExceptLastRight= GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight);
 
@@ -504,7 +287,7 @@ namespace TetrisClient.Logic
 
                 for (var i = 3; i >= 0; i--)
                 {
-                    if (!localFieldState.Holes.Exists(hole => hole.Y == i)) //в строке i нет дырки
+                    if (!localFieldState.Holes.Exists(hole => hole.Y == i))
                     {
                         localFieldState.RemoveLine(i);
                     }
@@ -515,43 +298,17 @@ namespace TetrisClient.Logic
                 return options;
             }
 
-            options = currentState.GetOptionsHoles(figure);
-
-            //var searchedCombinations = false;
-
-            //if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 8 /*|| !currentState.IsITetrominoFound*/)
-            //{
-            //    searchedCombinations = true;
-            //    options = currentState.GetOptionsCombs(figure);
-            //}
-
-            //if (options.Count == 0)
-            //{
-            //    options = currentState.GetOptionsLine(figure);
-            //    Console.WriteLine("Options after GetOptionsLine(): " + options.Count);
-            //}
-
-            //if (options.Count == 0 /*&& !searchedCombinations*/)
-            //{
-            //    options = currentState.GetOptionsCombs(figure);
-            //    Console.WriteLine("Options after GetOptionsCombs(): " + options.Count);
-            //}
-
-            //if (options.Count == 0)
-            //{
-            //    options = currentState.GetOptionsHoles(figure);
-            //    Console.WriteLine("Options after GetOptionsHoles(): " + options.Count);
-            //}
-
+            options = currentState.GetOptions(figure);
+            
             return options;
 		}
 
-        private static double GetMetric1(this LocalFieldState localFieldState)
+        private static double GetMaxSurfaceHeightMetric(this LocalFieldState localFieldState)
         {
             return localFieldState.FieldHeight - localFieldState.ColumnsHeight.Max();
         }
 
-        private static double GetMetric2(this LocalFieldState localFieldState)
+        private static double GetSmoothnessMetric(this LocalFieldState localFieldState)
 		{
             double weight = 0;
 
@@ -563,54 +320,60 @@ namespace TetrisClient.Logic
 			return 50 - weight; //нормирование
 		}
 
-		private static double GetMetric3(this LocalFieldState localFieldState)
-		{
-			var combinationsNumber = new int[(int)Tetromino.All];
-
-			for (var i = 0; i < localFieldState.FieldWidth - 1; i++)
-			{
-				var comb = GetOneCellCombination(localFieldState.ColumnsHeight[i] - localFieldState.ColumnsHeight[i + 1]);
-
-				for (var j = 0; j < (int)Tetromino.All; j++)
-				{
-					if (FiguresCombinations[j, (int)comb])
-					{
-						combinationsNumber[j]++;
-					}
-				}
-
-				if (i < localFieldState.FieldWidth - 2)
-				{
-					comb = GetTwoCellCombination(localFieldState.ColumnsHeight[i + 1] - localFieldState.ColumnsHeight[i],
-						localFieldState.ColumnsHeight[i + 2] - localFieldState.ColumnsHeight[i + 1]);
-
-					for (var j = 0; j < (int)Tetromino.All; j++)
-					{
-						if (FiguresCombinations[j, (int)comb])
-						{
-							combinationsNumber[j]++;
-						}
-					}
-				}
-			}
-
+		private static double GetFutureCombinationsMetric(this LocalFieldState localFieldState)
+        {
             double weight = 0;
-
+            var combinationsNumber = localFieldState.GetCombinationsNumber();
+            
 			for (var i = 0; i < (int)Tetromino.All; i++)
 			{
-				if(i != (int)Tetromino.I)
+				if (i != (int)Tetromino.I)
 				{
-					if(combinationsNumber[i] != 0)
+					if (combinationsNumber[i] != 0)
 					{
-						weight += 20 -  10 /(Math.Pow(2, (double)combinationsNumber[i]- 1)); //арифметическая прогрессия b1 = 10 q = 2/3 n = CombinationsNumber[i]
+						weight += 20 - 10 / (Math.Pow(2, (double)combinationsNumber[i] - 1)); //арифметическая прогрессия b1 = 10 q = 1/2 n = CombinationsNumber[i]
 					}
 
-                    weight -= 13;
+                    weight -= 13; // нормализация
                 }
 			}
 
 			return weight;
 		}
+
+        private static int[] GetCombinationsNumber(this LocalFieldState localFieldState)
+        {
+            var combinationsNumber = new int[(int)Tetromino.All];
+
+            for (var i = 0; i < localFieldState.FieldWidth - 1; i++)
+            {
+                var comb = GetOneCellCombination(localFieldState.ColumnsHeight[i] - localFieldState.ColumnsHeight[i + 1]); // maybe reverse i and i+1
+
+                for (var j = 0; j < (int)Tetromino.All; j++)
+                {
+                    if (FiguresCombinations[j, (int)comb])
+                    {
+                        combinationsNumber[j]++;
+                    }
+                }
+
+                if (i < localFieldState.FieldWidth - 2)
+                {
+                    comb = GetTwoCellCombination(localFieldState.ColumnsHeight[i + 1] - localFieldState.ColumnsHeight[i],
+                        localFieldState.ColumnsHeight[i + 2] - localFieldState.ColumnsHeight[i + 1]);
+
+                    for (var j = 0; j < (int)Tetromino.All; j++)
+                    {
+                        if (FiguresCombinations[j, (int)comb])
+                        {
+                            combinationsNumber[j]++;
+                        }
+                    }
+                }
+            }
+
+            return combinationsNumber;
+        }
 
         private static void RemoveLine(this LocalFieldState localFieldState, int line)
         {
@@ -633,6 +396,37 @@ namespace TetrisClient.Logic
                     }
                 }
             }
+        }
+
+        private static bool IsTooManySameFigures(List<Tetromino> nextFigures)
+        {
+            var tooManySameFigures = true;
+
+            for (var i = 1; i < nextFigures.Count; i++)
+            {
+                if (nextFigures[i] != nextFigures[0])
+                {
+                    tooManySameFigures = false;
+                    break;
+                }
+            }
+
+            return tooManySameFigures;
+        }
+
+        private static int GetMinColumnHeightExceptLastRight(List<int> columnsHeight)
+        {
+            var min = columnsHeight.First();
+
+            for (var i = 1; i < columnsHeight.Count - 1; i++)
+            {
+                if (columnsHeight[i] < min)
+                {
+                    min = columnsHeight[i];
+                }
+            }
+
+            return min;
         }
     }
 }

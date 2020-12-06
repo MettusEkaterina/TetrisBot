@@ -38,8 +38,8 @@ namespace TetrisClient
 
 		protected internal override Command Get(Board board)
         {
-            System.Diagnostics.Stopwatch myStopwatch = new System.Diagnostics.Stopwatch();
-            myStopwatch.Start();
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
 
             var tetromino = board.GetCurrentTetromino();
             var figurePoint = board.GetCurrentFigurePoint();
@@ -76,12 +76,9 @@ namespace TetrisClient
 
             var command = currentFieldState.GetCommand(futureFigures, TooLongCalculation);
 
-            myStopwatch.Stop();
-            var ts = myStopwatch.Elapsed;
-
-            var elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                ts.Hours, ts.Minutes, ts.Seconds,
-                ts.Milliseconds / 10);
+            stopwatch.Stop();
+            var ts = stopwatch.Elapsed;
+            var elapsedTime = $"{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
             Console.WriteLine("RunTime " + elapsedTime);
 
             if (ts >= TimeSpan.FromSeconds(1))

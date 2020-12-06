@@ -210,104 +210,6 @@
             }
         }
 
-        public static int GetRotationsNumber(this Tetromino figure, Combination combination)
-        {
-            switch (combination)
-            {
-                case Combination.OO:
-                {
-                    if (figure == Tetromino.T)
-                        return 0;
-                    else if (figure == Tetromino.L)
-                        return 3;
-                    else if (figure == Tetromino.J)
-                        return 1;
-                    else
-                        return 4;
-                }
-                case Combination.OU:
-                {
-                    if (figure == Tetromino.S)
-                        return 0;
-                    else
-                        return 4;
-                }
-                case Combination.OD:
-                {
-                    if (figure == Tetromino.J)
-                        return 3;
-                    else
-                        return 4;
-                }
-                case Combination.UO:
-                {
-                    if (figure == Tetromino.L)
-                        return 1;
-                    else
-                        return 4;
-                }
-                case Combination.DO:
-                {
-                    if (figure == Tetromino.Z)
-                        return 0;
-                    else
-                        return 4;
-                }
-                case Combination.DU:
-                {
-                    if (figure == Tetromino.T)
-                        return 2;
-                    else
-                        return 4;
-                }
-                case Combination.UU:
-                {
-                    if (figure == Tetromino.J)
-                        return 2;
-                    else
-                        return 4;
-                }
-                case Combination.DD:
-                {
-                    if (figure == Tetromino.L)
-                        return 2;
-                    else
-                        return 4;
-                }
-                case Combination.U:
-                {
-                    if (figure == Tetromino.T)
-                        return 1;
-                    else if (figure == Tetromino.Z)
-                        return 1;
-                    else
-                        return 4;
-                }
-                case Combination.D:
-                {
-                    if (figure == Tetromino.T)
-                        return 3;
-                    else if (figure == Tetromino.S)
-                        return 1;
-                    else
-                        return 4;
-                }
-                case Combination.O:
-                {
-                    if (figure == Tetromino.O)
-                        return 0;
-                    else if (figure == Tetromino.L)
-                        return 0;
-                    else if (figure == Tetromino.J)
-                        return 0;
-                    else
-                        return 4;
-                }
-                default:
-                    return 4;
-            }
-        }
-
         public static int GetAdditionalStepsAfterRotations(this Tetromino figure, int angle)
         {
             switch (figure)
@@ -360,6 +262,45 @@
                 }
                 default:
                     return 0;
+            }
+        }
+
+        public static int GetLowestTetraminoCell(this Tetromino figure, LocalFieldState localFieldState)
+        {
+            var tetrominoBottom = figure.GetBottom(localFieldState.FigureAngle);
+            var lowestTetraminoCell = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate];
+
+            for (var i = 1; i < figure.GetLength(localFieldState.FigureAngle); i++)
+            {
+                if (localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] > lowestTetraminoCell + tetrominoBottom[i])
+                {
+                    lowestTetraminoCell = localFieldState.ColumnsHeight[localFieldState.FigureCoordinate + i] - tetrominoBottom[i];
+                }
+            }
+
+            return lowestTetraminoCell;
+        }
+
+        public static Tetromino ToTetromino(this Element element)
+        {
+            switch (element)
+            {
+                case Element.I:
+                    return Tetromino.I;
+                case Element.J:
+                    return Tetromino.J;
+                case Element.L:
+                    return Tetromino.L;
+                case Element.O:
+                    return Tetromino.O;
+                case Element.S:
+                    return Tetromino.S;
+                case Element.T:
+                    return Tetromino.T;
+                case Element.Z:
+                    return Tetromino.Z;
+                default:
+                    return Tetromino.All;
             }
         }
     }

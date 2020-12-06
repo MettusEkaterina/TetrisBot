@@ -61,7 +61,6 @@
     <Compile Include="Board.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Direction.cs" />
-    <Compile Include="Logic\CommonExtensions.cs" />
     <Compile Include="Logic\LocalFieldStateExtensions.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="FigureRotator.cs" />
