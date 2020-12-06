@@ -29,8 +29,9 @@ namespace TetrisClient
 	{
         private bool IsITetrominoFound = false;
         private int TicksWithoutITetromino = 0;
+        private bool TooLongCalculation = false;
 
-		public YourSolver(string server)
+        public YourSolver(string server)
 			: base(server)
 		{
 		}
@@ -73,7 +74,7 @@ namespace TetrisClient
                 IsITetrominoFound = this.IsITetrominoFound
 			};
 
-            var command = currentFieldState.GetCommand(futureFigures);
+            var command = currentFieldState.GetCommand(futureFigures, TooLongCalculation);
 
             myStopwatch.Stop();
             var ts = myStopwatch.Elapsed;
@@ -83,6 +84,13 @@ namespace TetrisClient
                 ts.Milliseconds / 10);
             Console.WriteLine("RunTime " + elapsedTime);
 
+            if (ts >= TimeSpan.FromSeconds(1))
+            {
+                TooLongCalculation = true;
+                return Command.ROTATE_CLOCKWISE_180.Then(Command.ROTATE_CLOCKWISE_180);
+            }
+
+            TooLongCalculation = false;
             return command;
         }
 	}

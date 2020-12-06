@@ -9,10 +9,8 @@ namespace TetrisClient.Logic
         private const int WeightLineRemoved = 0; //20;
         private const int WeightHole = 0; //20;
 		private const double СoefficientMetric1 = 1;
-		private const double СoefficientMetric2 = 1;
+		private const double СoefficientMetric2 = 1; //0.6
 		private const double СoefficientMetric3 = 1;
-        private const double CoefficientMetric4 = 0;
-        private const int NormalisationMetric4 = 10;
 
         private static bool[,] FiguresCombinations =
         { 
@@ -27,7 +25,7 @@ namespace TetrisClient.Logic
             /*All*/ {false, false, false, false, false, false, false, false, false, false, false, false}
         };
 
-        public static Command GetCommand(this LocalFieldState currentState, List<Tetromino> nextFigures)
+        public static Command GetCommand(this LocalFieldState currentState, List<Tetromino> nextFigures, bool tooLongCalculation)
         {
             //hardcode for debug
 
@@ -42,7 +40,18 @@ namespace TetrisClient.Logic
             //currentState.IsITetrominoFound = true;
             //currentState.Holes.Clear();
 
-            var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0);
+            var tooMuchSameFigures = true;
+
+            for (var i = 1; i < nextFigures.Count; i++)
+            {
+                if (nextFigures[i] != nextFigures[0])
+                {
+                    tooMuchSameFigures = false;
+                    break;
+                }
+            }
+
+            var resultFieldState = currentState.ProcessNextTetromino(nextFigures, 0, tooMuchSameFigures, tooLongCalculation);
             var rotationsNumber = resultFieldState.FigureAngle;
             var stepsNumber = resultFieldState.FigureCoordinate - currentState.FigureCoordinate + nextFigures.First().GetAdditionalStepsAfterRotations(resultFieldState.FigureAngle);
             var commands = new List<Command>();
@@ -139,7 +148,7 @@ namespace TetrisClient.Logic
             }
 		}
 
-        private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, List<Tetromino> nextFigures, int level) // level - уровень рекурсии, номер обрабатываемой фигуры
+        private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, List<Tetromino> nextFigures, int level, bool tooManySameFigures, bool tooLongCalculation) // level - уровень рекурсии, номер обрабатываемой фигуры
         {
             var fieldStateOptions = currentState.GetFieldStateOptions(nextFigures[level]);
             var result = new LocalFieldState();
@@ -152,12 +161,18 @@ namespace TetrisClient.Logic
                 return result;
 			}
             
-			//if (level != nextFigures.Count - 1)
-            if (level != 3)   // мало вероятно 4
+            if (!(tooManySameFigures || tooLongCalculation) && level != 3) 
             {
                 foreach (var option in fieldStateOptions) // параллелить
                 {
-                    option.Weight = option.ProcessNextTetromino(nextFigures, level + 1).Weight;
+                    option.Weight = option.ProcessNextTetromino(nextFigures, level + 1, tooManySameFigures, tooLongCalculation).Weight;
+                }
+            }
+            else if ((tooLongCalculation || tooManySameFigures && nextFigures.First() != Tetromino.O) && level != 2)
+            {
+                foreach (var option in fieldStateOptions) // параллелить
+                {
+                    option.Weight = option.ProcessNextTetromino(nextFigures, level + 1, tooManySameFigures, tooLongCalculation).Weight;
                 }
             }
             else
@@ -403,7 +418,6 @@ namespace TetrisClient.Logic
                     localFieldState.FigureAngle = angle;
 					localFieldState.FigureCoordinate = distance;
                     var maxProducedColumnHeight = localFieldState.Drop(figure);
-                    localFieldState.Weight += CoefficientMetric4 * (NormalisationMetric4 - maxProducedColumnHeight);
 
                     for (var i = 0; i < 4; i++)
                     {
@@ -501,6 +515,8 @@ namespace TetrisClient.Logic
                 return options;
             }
 
+            options = currentState.GetOptionsHoles(figure);
+
             //var searchedCombinations = false;
 
             //if (currentState.ColumnsHeight[currentState.FieldWidth - 1] == 0 && currentState.ColumnsHeight.Max() <= 8 /*|| !currentState.IsITetrominoFound*/)
@@ -521,13 +537,13 @@ namespace TetrisClient.Logic
             //    Console.WriteLine("Options after GetOptionsCombs(): " + options.Count);
             //}
 
-   //         if (options.Count == 0)
-			//{
-				options = currentState.GetOptionsHoles(figure);
-                //Console.WriteLine("Options after GetOptionsHoles(): " + options.Count);
+            //if (options.Count == 0)
+            //{
+            //    options = currentState.GetOptionsHoles(figure);
+            //    Console.WriteLine("Options after GetOptionsHoles(): " + options.Count);
             //}
 
-			return options;
+            return options;
 		}
 
         private static double GetMetric1(this LocalFieldState localFieldState)
