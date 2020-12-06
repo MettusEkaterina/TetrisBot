@@ -127,7 +127,7 @@ namespace TetrisClient.Logic
 
         private static LocalFieldState ProcessNextTetromino(this LocalFieldState currentState, List<Tetromino> nextFigures, int level, bool tooManySameFigures, bool tooLongCalculation) // level - уровень рекурсии, номер обрабатываемой фигуры
         {
-            var fieldStateOptions = currentState.GetFieldStateOptions(nextFigures[level]);
+            var fieldStateOptions = currentState.GetFieldStateOptions(nextFigures[level], tooManySameFigures);
             var result = new LocalFieldState();
 
 			if (fieldStateOptions.Count == 1)
@@ -206,7 +206,7 @@ namespace TetrisClient.Logic
             return maxProducedColumnHeight;
         }
         
-		private static List<LocalFieldState> GetOptions(this LocalFieldState currentState, Tetromino figure)
+		private static List<LocalFieldState> GetOptions(this LocalFieldState currentState, Tetromino figure, bool tooManySameFigures)
 		{
 			var options = new List<LocalFieldState>();
 			var holes = 1000;
@@ -240,7 +240,7 @@ namespace TetrisClient.Logic
 
                     var tetrominoLength = figure.GetLength(localFieldState.FigureAngle);
 
-                    if (!localFieldState.IsITetrominoFound)
+                    if (/*!localFieldState.IsITetrominoFound || */ tooManySameFigures /*&& figure == Tetromino.O*/)
                     {
                         if (localFieldState.Holes.Count < holes)
                         {
@@ -253,7 +253,7 @@ namespace TetrisClient.Logic
                             options.Add(localFieldState);
                         }
                     }
-                    else if (currentState.ColumnsHeight.Max() > 12 || 
+                    else if (currentState.ColumnsHeight.Max() > 14 || 
                              tetrominoLength + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || 
                              options.Count == 0)
                     {
@@ -274,7 +274,7 @@ namespace TetrisClient.Logic
 			return options;
 		}
         
-		private static List<LocalFieldState> GetFieldStateOptions(this LocalFieldState currentState, Tetromino figure)
+		private static List<LocalFieldState> GetFieldStateOptions(this LocalFieldState currentState, Tetromino figure, bool tooManySameFigures)
 		{ 
             var options = new List<LocalFieldState>();
             var minColumnHeightExceptLastRight= GetMinColumnHeightExceptLastRight(currentState.ColumnsHeight);
@@ -298,7 +298,7 @@ namespace TetrisClient.Logic
                 return options;
             }
 
-            options = currentState.GetOptions(figure);
+            options = currentState.GetOptions(figure, tooManySameFigures);
             
             return options;
 		}
@@ -349,11 +349,14 @@ namespace TetrisClient.Logic
             {
                 var comb = GetOneCellCombination(localFieldState.ColumnsHeight[i] - localFieldState.ColumnsHeight[i + 1]); // maybe reverse i and i+1
 
-                for (var j = 0; j < (int)Tetromino.All; j++)
+                if (comb != Combination.All)
                 {
-                    if (FiguresCombinations[j, (int)comb])
+                    for (var j = 0; j < (int) Tetromino.All; j++)
                     {
-                        combinationsNumber[j]++;
+                        if (FiguresCombinations[j, (int) comb])
+                        {
+                            combinationsNumber[j]++;
+                        }
                     }
                 }
 
@@ -362,11 +365,14 @@ namespace TetrisClient.Logic
                     comb = GetTwoCellCombination(localFieldState.ColumnsHeight[i + 1] - localFieldState.ColumnsHeight[i],
                         localFieldState.ColumnsHeight[i + 2] - localFieldState.ColumnsHeight[i + 1]);
 
-                    for (var j = 0; j < (int)Tetromino.All; j++)
+                    if (comb != Combination.All)
                     {
-                        if (FiguresCombinations[j, (int)comb])
+                        for (var j = 0; j < (int) Tetromino.All; j++)
                         {
-                            combinationsNumber[j]++;
+                            if (FiguresCombinations[j, (int) comb])
+                            {
+                                combinationsNumber[j]++;
+                            }
                         }
                     }
                 }

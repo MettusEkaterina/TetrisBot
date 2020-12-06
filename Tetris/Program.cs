@@ -25,8 +25,9 @@ using System.Threading;
 namespace TetrisClient
 {
 	class Program
-	{
-		static string ServerUrl = "http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/l2rrl2ufx1koaotc8k3f?code=2133936381551557325&gameName=tetris#";
+    {
+        private static string ServerUrl = "http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/a3yohi4krvhu7ktvi469?code=42179898535520135&gameName=tetris";
+		//"http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/l2rrl2ufx1koaotc8k3f?code=2133936381551557325&gameName=tetris#";
 
 		// ссылку можно взять в строке браузера после регистрации на сервере и логина
 		// http://server-ip:8080/codenjoy-contest/board/player/your@email.com?code=12345678901234567890
