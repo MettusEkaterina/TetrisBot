@@ -8,9 +8,9 @@ namespace TetrisClient.Logic
     {
         private const int WeightLineRemoved = 0; //20;
         private const int WeightHole = 0; //20;
-		private const double СoefficientMetric1 = 0.7;
-		private const double СoefficientMetric2 = 0.3;
-		private const double СoefficientMetric3 = 0; //0.8;
+		private const double СoefficientMetric1 = 1;
+		private const double СoefficientMetric2 = 1;
+		private const double СoefficientMetric3 = 1;
         private const double CoefficientMetric4 = 0;
         private const int NormalisationMetric4 = 10;
 
@@ -433,7 +433,7 @@ namespace TetrisClient.Logic
                             options.Add(localFieldState);
                         }
                     }
-                    else if (currentState.ColumnsHeight.Max() > 8 || 
+                    else if (currentState.ColumnsHeight.Max() > 10 || 
                              tetrominoLength + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || 
                              options.Count == 0)
                     {
