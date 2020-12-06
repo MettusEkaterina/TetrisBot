@@ -253,7 +253,7 @@ namespace TetrisClient.Logic
                             options.Add(localFieldState);
                         }
                     }
-                    else if (currentState.ColumnsHeight.Max() > 11 || 
+                    else if (currentState.ColumnsHeight.Max() > 12 || 
                              tetrominoLength + localFieldState.FigureCoordinate <= currentState.FieldWidth - 1 || 
                              options.Count == 0)
                     {
